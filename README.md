@@ -65,5 +65,32 @@ This is a simple network battleship game implemented using Python and sockets.
 
 # Technical Details
 The game can be implemented in multiple ways. Two possible ways are:
-1. Players both input their battleship positions, which are stored in some matrix. When one player sends their attack to the other, the server will verify if it is a "hit".
-2. Same input, but the players themselves send a response verifying it was a "hit" or "miss", like the original battleship game
+  1. Players both input their battleship positions, which are stored in some matrix. When one player sends their attack to the other, the server will verify if it is a "hit".
+  2. Same input, but the players themselves send a response verifying it was a "hit" or "miss", like the original battleship game
+
+<br/>
+
+#### Grid Size
+The grid will be 10x10.
+Example board setup:
+| |1 |2 |3 |4 |5 |6 |7 |8 |9 |10 |
+| - | - | - | - | - | - | - | - | - | - | - |
+|A | | | | | | | | | | |
+|B | | | | | | | | | | |
+|C | | | | | | | | | | |
+|D | | | | | | | | | | |
+|E | | | | | | | | | | |
+|F | | | | | | | | | | |
+|G | | | | | | | | | | |
+|H | | | | | | | | | | |
+|I | | | | | | | | | | |
+|J | | | | | | | | | | |
+
+#### Ship Sizes
+| Ship              |   Size   |
+| :---------------- | :------: |
+| Carrier | 5 |
+| Battleship | 4 | 
+| Cruiser | 3 | 
+| Submarine | 3 |
+| Destroyer | 2 |
