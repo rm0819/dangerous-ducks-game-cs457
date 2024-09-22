@@ -80,11 +80,11 @@ Implement client-server architecture capable of at least two simultaneous client
 - Program base battleship game and design CLI output. EST: 4 hours
 - Program server socket connection handling. EST: 2 hours
 - Program client connecitons to server. EST: 2.5 hours
-- Program multiplayer functionality with synchronized state across clients. EST 4 hours
+- Program multiplayer functionality with synchronized state across clients. EST: 4 hours
 - Add gameplay and game state to the server and clients. EST: 3.5 hours]
-- Implement error handling. EST 1.5 hours
+- Implement error handling. EST: 1.5 hours
 - Test game for bugs. EST: 1.5 hours
-- Finalize any details. EST 1 hour
+- Finalize any details. EST: 1 hour
 
 ## Technical Requirements:
 ### Hardware:
