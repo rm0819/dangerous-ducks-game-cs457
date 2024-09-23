@@ -31,7 +31,7 @@ Dangerous Ducks' Network Battleship Game
 
 ## Team:
 ### Dangerous Ducks
-- Andrew DiTirro
+- Andrew Di Tirro
 - Matthew Smith
 
 ## Project Objective:
