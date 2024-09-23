@@ -111,20 +111,21 @@ Implement client-server architecture capable of at least two simultaneous client
 
 **Developers**
 - Matt Smith
-- Andrew DiTirro
+- Andrew Di Tirro
 
 **Creative Design**
-- Andrew DiTirro
+- Andrew Di Tirro
 
 **Error Handling**
 - Matt Smith
 
 **Testers**
-- Andrew DiTirro
+- Andrew Di Tirro
 - Matt Smith
 
 ## Communication Plan:
 [Outline the communication channels and frequency for project updates, meetings, and decision-making.]
+- We will communicate weekly over Discord.
 
 Team members will check in twice a week to discuss weekly goals and state of affairs. One of these check-ins will be a virtual call meeting, used for in-depth discussion and planning.
 ## Additional Notes:
