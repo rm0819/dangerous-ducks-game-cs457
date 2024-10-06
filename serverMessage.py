@@ -44,8 +44,7 @@ class Message:
         try:
             # Should be ready to read
             data = self.sock.recv(4096)
-        except BlockingIOError:
-            # Resource temporarily unavailable (errno EWOULDBLOCK)
+        except BlockingIOError as error:
             pass
         else:
             if data:
@@ -59,8 +58,7 @@ class Message:
             try:
                 # Should be ready to write
                 sent = self.sock.send(self._send_buffer)
-            except BlockingIOError:
-                # Resource temporarily unavailable (errno EWOULDBLOCK)
+            except BlockingIOError as error:
                 pass
             else:
                 self._send_buffer = self._send_buffer[sent:]
