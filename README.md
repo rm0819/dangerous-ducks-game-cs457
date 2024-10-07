@@ -10,8 +10,8 @@
 This is a simple network battleship game implemented using Python and sockets. 
 
 **How to play:**
-1. **Start the server:** python server.py <host> <port>
-2. **Connect clients:** python client.py <server-ip> <port> <action> <value>
+1. **Start the server:** python server.py \<host\> \<port\>
+2. **Connect clients:** python client.py \<server-ip\> \<port\> \<action\> \<value\>
 3. **Play the game:** Players will take turns entering their moves. Player 1 will enter a move, then wait for player 2's response if its a hit. First player to hit every spot on all the enemy battleships wins!
 
 **Technologies used:**
