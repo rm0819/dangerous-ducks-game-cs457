@@ -10,8 +10,8 @@
 This is a simple network battleship game implemented using Python and sockets. 
 
 **How to play:**
-1. **Start the server:** Not set up yet!
-2. **Connect clients:** Not set up yet!
+1. **Start the server:** python server.py \<host\> \<port\>
+2. **Connect clients:** python client.py \<server-ip\> \<port\> \<action\> \<value\>
 3. **Play the game:** Players will take turns entering their moves. Player 1 will enter a move, then wait for player 2's response if its a hit. First player to hit every spot on all the enemy battleships wins!
 
 **Technologies used:**
@@ -22,6 +22,7 @@ This is a simple network battleship game implemented using Python and sockets.
 * [Battleship Rules](https://www.hasbro.com/common/instruct/battleship.pdf)
 * [Link to Python documentation](https://docs.python.org/3/)
 * [Link to sockets tutorial](https://docs.python.org/3/howto/sockets.html)
+* [Requirements.txt explanation](https://dev.to/eskabore/pip-freeze-requirementstxt-a-beginners-guide-5e2m)
 
 <br/>
 
@@ -68,12 +69,12 @@ Implement client-server architecture capable of at least two simultaneous client
 ## Timeline:
 ### Key Milestones:
 [Outline the major milestones or checkpoints throughout the project, with estimated completion dates.]
-- Sprint 0: Form teams, Setup Tools, Submit SOW [Template] (Sept 08-Sept 22)
-- Sprint 1: Socket Programming, TCP Client Server (Sept 22-Oct 06)
-- Sprint 2: Develop Game Message Protocol, Manage Client connections (Oct 06-Oct 20)
-- Sprint 3: Multi-player functionality, Synchronize state across clients. (Oct 20-Nov 03)
-- Sprint 4: Game play, Game State (Nov 03-Nov 17)
-- Sprint 5: Implement Error Handling and Testing (Nov 17-Dec 6)
+- [x] Sprint 0: Form teams, Setup Tools, Submit SOW [Template] (Sept 08-Sept 22)
+- [x] Sprint 1: Socket Programming, TCP Client Server (Sept 22-Oct 06) 
+- [ ] Sprint 2: Develop Game Message Protocol, Manage Client connections (Oct 06-Oct 20)
+- [ ] Sprint 3: Multi-player functionality, Synchronize state across clients. (Oct 20-Nov 03)
+- [ ] Sprint 4: Game play, Game State (Nov 03-Nov 17)
+- [ ] Sprint 5: Implement Error Handling and Testing (Nov 17-Dec 6)
   
 ### Task Breakdown:
 [Create a detailed breakdown of tasks, assigning estimated hours or days to each.]

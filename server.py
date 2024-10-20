@@ -53,6 +53,9 @@ try:
                         "main: error: exception for",
                         f"{message.addr}:\n{traceback.format_exc()}",
                     )
+                    logger.info("main: error: exception for",
+                        f"{message.addr}:\n{traceback.format_exc()}"
+                    )
                     message.close()
 except KeyboardInterrupt:
     print("caught keyboard interrupt, exiting")
