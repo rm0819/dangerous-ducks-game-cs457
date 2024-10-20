@@ -5,6 +5,7 @@ import socket
 import selectors
 import traceback
 import logging
+import random
 
 import serverMessage
 
@@ -14,8 +15,14 @@ sel = selectors.DefaultSelector()
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="server.log", encoding='utf-8', level=logging.DEBUG, format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
+empty_board = "........../........../........../........../........../........../........../........../........../........../"
 # Player boards
 players = {}
+player_socks = []
+
+
+# . . . . . x . . o . . 
+# 
 
 def accept_wrapper(sock):
     conn, addr = sock.accept()  # Should be ready to read
@@ -42,7 +49,7 @@ lsock.setblocking(False)
 sel.register(lsock, selectors.EVENT_READ, data=None)
 
 try:
-    while True:
+    while len(players) < 1:
         events = sel.select(timeout=None)
         for key, mask in events:
             if key.data is None:
@@ -51,14 +58,8 @@ try:
                 message = key.data
                 try:
                     message.process_events(mask)
-                    if not players:
-                        players[message.sock] = message.board
-                        print(players)
-                    elif len(players) == 1:
-                        players[message.sock] = message.board
-                        print(players)
-                    else:
-                        message.create_and_send_game_full_response()
+                    players[message] = [message.board, empty_board]
+                    player_socks.append(message)
                 except Exception:
                     print(
                         "main: error: exception for",
@@ -68,6 +69,51 @@ try:
                         f"{message.addr}:\n{traceback.format_exc()}"
                     )
                     message.close()
+
+    # Switch players if coin lands on heads to randomize player start order
+    '''coin_flip = random.randint(0,1)
+    # Player 2 goes first
+    if coin_flip == 1:
+        temp = player_socks[0]
+        player_socks[0] = player_socks[1]
+        player_socks[1] = temp'''
+    turnState = 0
+    noResponse = True
+
+    # send message to both players saying "Player x starts first!"
+
+
+    while True: # Gameplay loop
+        if noResponse:
+            player_socks[turnState].create_and_send_response("Please enter the tile you wish to attack.")
+            while True:
+                events = sel.select(timeout=None)
+                for key, mask in events:
+                    if key.data is None:
+                        accept_wrapper(key.fileobj)
+                    else:
+                        message = key.data
+                        try:
+                            if (mask & selectors.EVENT_READ):
+                                message.process_events(mask)
+                                noResponse = False
+                        except Exception:
+                            print(
+                                "main: error: exception for",
+                                f"{message.addr}:\n{traceback.format_exc()}",
+                            )
+                            logger.info("main: error: exception for",
+                                f"{message.addr}:\n{traceback.format_exc()}"
+                            )
+                            message.close()
+        elif not noResponse:
+            if turnState == 0:
+                turnState = 1
+            else:
+                turnState = 0
+            noResponse = True
+        
+
 except KeyboardInterrupt:
     print("caught keyboard interrupt, exiting")
 finally:

@@ -142,7 +142,7 @@ class Message:
         if mask & selectors.EVENT_READ:
             self.read()
         if mask & selectors.EVENT_WRITE:
-            self.create_response()
+            self.write()
 
     def read(self):
         self._read()
@@ -244,6 +244,21 @@ class Message:
 
     def create_and_send_game_full_response(self):
         content = {"result": f'Error: The game is already full.'}
+        content_encoding = "utf-8"
+        response = {
+            "content_bytes": self._json_encode(content, content_encoding),
+            "content_type": "text/json",
+            "content_encoding": content_encoding,
+        }
+
+        message = self._create_message(**response)
+        self.response_created = True
+        self._send_buffer += message
+
+        self.write()
+
+    def create_and_send_response(self, information):
+        content = {"result": information}
         content_encoding = "utf-8"
         response = {
             "content_bytes": self._json_encode(content, content_encoding),
