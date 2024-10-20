@@ -2,6 +2,7 @@
 - [Introduction](#title)
 - [Scope of Work](#sow)
 - [Technical Details](#technical-details)
+- [Game Message Protocol](#game-message-protocol)
 
 <br/>
 
@@ -165,3 +166,23 @@ The grid will be 10x10.
 | Cruiser    |   3  | 
 | Submarine  |   3  |
 | Destroyer  |   2  |
+
+# Game Message Protocol
+This protocol defines what messages are sent from the server to the client and vice versa, as well as what content the messages hold.
+
+* Join game
+  When a player joins the game, the server will check their message input, and then tell them if it is waiting for another player
+* Attack
+  The server will check if the inputted attack is a hit or miss, then send a response to the player who sent the attack, and another response to the player who was attacked
+
+## Message Structure
+### Server
+* Join game
+  value = 
+* Attack
+### Client
+## Message Types
+* Join game
+  This includes the player's starting ship position
+* Attack
+  This is how a player attacks the enemies ship

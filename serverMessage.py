@@ -27,6 +27,7 @@ class Message:
         self.jsonheader = None
         self.request = None
         self.response_created = False
+        self.board = ""
 
     def _set_selector_events_mask(self, mode):
         """Set selector to listen for events: mode is 'r', 'w', or 'rw'."""
@@ -63,8 +64,8 @@ class Message:
             else:
                 self._send_buffer = self._send_buffer[sent:]
                 # Close when the buffer is drained. The response has been sent.
-                if sent and not self._send_buffer:
-                    self.close()
+                #if sent and not self._send_buffer:
+                    #self.close()
 
     def _json_encode(self, obj, encoding):
         return json.dumps(obj, ensure_ascii=False).encode(encoding)
@@ -93,10 +94,17 @@ class Message:
 
     def _create_response_json_content(self):
         action = self.request.get("action")
-        if action == "message":
+        if action == "join_game": # JOIN THE GAME
+            self.board = self.request.get("value")
+            self.board = self.board.replace('/', '\n')
+            content = {"result": "Stored this board in the server:\n" + self.board}
+        elif action == "attack": # Attack enemy player
+            message = self.request.get("value")
+            content = {"result": message}
+        elif action == "message": # MESSAGE
             message = self.request.get("value")
             content = {"result": f'The server received the message: "{message}"'}
-        elif action == "search":
+        elif action == "search": # SEARCH
             query = self.request.get("value")
             answer = request_search.get(query) or f'No match for "{query}".'
             content = {"result": answer}
@@ -134,7 +142,7 @@ class Message:
         if mask & selectors.EVENT_READ:
             self.read()
         if mask & selectors.EVENT_WRITE:
-            self.write()
+            self.create_response()
 
     def read(self):
         self._read()
@@ -233,3 +241,18 @@ class Message:
         message = self._create_message(**response)
         self.response_created = True
         self._send_buffer += message
+
+    def create_and_send_game_full_response(self):
+        content = {"result": f'Error: The game is already full.'}
+        content_encoding = "utf-8"
+        response = {
+            "content_bytes": self._json_encode(content, content_encoding),
+            "content_type": "text/json",
+            "content_encoding": content_encoding,
+        }
+
+        message = self._create_message(**response)
+        self.response_created = True
+        self._send_buffer += message
+
+        self.write()

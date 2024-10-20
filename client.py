@@ -16,7 +16,13 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(filename="client.log", encoding='utf-8', level=logging.DEBUG, format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 def create_request(action, value):
-    if action == "message":
+    if action == "join_game":
+        return dict(
+            type="text/json",
+            encoding="utf-8",
+            content=dict(action=action, value=value),
+        )
+    elif action == "message":
         return dict(
             type="text/json",
             encoding="utf-8",
@@ -29,9 +35,8 @@ def create_request(action, value):
             content=bytes(action + value, encoding="utf-8"),
         )
 
-
-def start_connection(host, port, request):
-    addr = (host, port)
+def start_game_connection(host, port, request):
+    addr = (host, int(port))
     print("starting connection to", addr)
     # Log connection to server
     logger.info("Connecting to server at %s on port %s", host, port)
@@ -41,16 +46,23 @@ def start_connection(host, port, request):
     events = selectors.EVENT_READ | selectors.EVENT_WRITE
     message = clientMessage.Message(sel, sock, addr, request)
     sel.register(sock, events, data=message)
-
-
-if len(sys.argv) != 5:
-    print("usage:", sys.argv[0], "<host> <port> <action> <value>")
+    
+# -------------------- START TO GAME ------------------------
+print("\nWelcome to Battleship!")
+host, port = input("Please enter the host and port you'd like to connect to: ").split()
+if (not host or not port):
+    print("Enter host and port as such: <host> <port>")
     sys.exit(1)
 
-host, port = sys.argv[1], int(sys.argv[2])
-action, value = sys.argv[3], sys.argv[4]
-request = create_request(action, value)
-start_connection(host, port, request)
+# Get board configuration
+board = input("\nPlease enter your ship positions:\n")
+
+#action, value = sys.argv[3], sys.argv[4]
+request = create_request("join_game", board)
+start_game_connection(host, port, request)
+
+print("Connected to the server!")
+
 
 try:
     while True:
@@ -69,7 +81,7 @@ try:
                     f"{message.addr}:\n{traceback.format_exc()}"
                 )
                 message.close()
-        # Check for a socket being monitored to continue.
+        # If there are still sockets open then continue the program
         if not sel.get_map():
             break
 except KeyboardInterrupt:
