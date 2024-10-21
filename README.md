@@ -72,7 +72,7 @@ Implement client-server architecture capable of at least two simultaneous client
 [Outline the major milestones or checkpoints throughout the project, with estimated completion dates.]
 - [x] Sprint 0: Form teams, Setup Tools, Submit SOW [Template] (Sept 08-Sept 22)
 - [x] Sprint 1: Socket Programming, TCP Client Server (Sept 22-Oct 06) 
-- [ ] Sprint 2: Develop Game Message Protocol, Manage Client connections (Oct 06-Oct 20)
+- [x] Sprint 2: Develop Game Message Protocol, Manage Client connections (Oct 06-Oct 20)
 - [ ] Sprint 3: Multi-player functionality, Synchronize state across clients. (Oct 20-Nov 03)
 - [ ] Sprint 4: Game play, Game State (Nov 03-Nov 17)
 - [ ] Sprint 5: Implement Error Handling and Testing (Nov 17-Dec 6)
