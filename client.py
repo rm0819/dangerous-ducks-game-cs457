@@ -7,33 +7,48 @@ import traceback
 import struct
 import logging
 
-import clientMessage
-
 sel = selectors.DefaultSelector()
 
 # Set up logging for client
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="client.log", encoding='utf-8', level=logging.DEBUG, format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
-def create_request(action, value):
-    if action == "join_game":
-        return dict(
-            type="text/json",
-            encoding="utf-8",
-            content=dict(action=action, value=value),
-        )
-    elif action == "message":
-        return dict(
-            type="text/json",
-            encoding="utf-8",
-            content=dict(action=action, value=value),
-        )
+def message_decode(data, socket):
+    readable = data.decode()
+    if readable[0] is 0:
+        print(readable[1:])
+    elif readable[0] is 1:
+        print(readable[1:])
     else:
-        return dict(
-            type="binary/custom-client-binary-type",
-            encoding="binary",
-            content=bytes(action + value, encoding="utf-8"),
-        )
+        pass
+        # error!
+
+def read(conn):
+    try:
+        # Should be ready to read
+        data = conn.recv(110)
+    except BlockingIOError as error:
+        pass
+    else:
+        if data:
+            pass
+            # process data
+        else:
+            raise RuntimeError("Peer closed.")
+
+def write(conn):
+    if send_buffer:
+        print("sending", repr(send_buffer), "to", conn.addr)
+        try:
+            # Should be ready to write
+            sent = conn.sock.send(send_buffer)
+        except BlockingIOError as error:
+            pass
+        else:
+            send_buffer = send_buffer[sent:]
+            # Close when the buffer is drained. The response has been sent.
+            #if sent and not self._send_buffer:
+                #self.close()
 
 def start_game_connection(host, port, request):
     addr = (host, int(port))
@@ -44,8 +59,8 @@ def start_game_connection(host, port, request):
     sock.setblocking(False)
     sock.connect_ex(addr)
     events = selectors.EVENT_READ | selectors.EVENT_WRITE
-    message = clientMessage.Message(sel, sock, addr, request)
-    sel.register(sock, events, data=message)
+    # message = clientMessage.Message(sel, sock, addr, request)
+    sel.register(sock, events, data=sock)
     
 # -------------------- START TO GAME ------------------------
 print("\nWelcome to Battleship!")
@@ -58,19 +73,21 @@ if (not host or not port):
 board = input("\nPlease enter your ship positions:\n")
 
 #action, value = sys.argv[3], sys.argv[4]
-request = create_request("join_game", board)
+request = b"0" + board
 start_game_connection(host, port, request)
 
 print("Connected to the server!")
 
-
 try:
     while True:
-        events = sel.select(timeout=1)
+        events = sel.select(timeout=None)
         for key, mask in events:
             message = key.data
             try:
-                message.process_events(mask)
+                if mask & selectors.EVENT_READ:
+                    read(message)
+                if mask & selectors.EVENT_WRITE:
+                    write(message)
             except Exception:
                 print(
                     "main: error: exception for",
