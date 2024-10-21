@@ -12,7 +12,7 @@ This is a simple network battleship game implemented using Python and sockets.
 
 **How to play:**
 1. **Start the server:** python server.py \<host\> \<port\>
-2. **Connect clients:** python client.py \<server-ip\> \<port\> \<action\> \<value\>
+2. **Connect client to server:** python client.py, then follow instructions
 3. **Play the game:** Players will take turns entering their moves. Player 1 will enter a move, then wait for player 2's response if its a hit. First player to hit every spot on all the enemy battleships wins!
 
 **Technologies used:**
@@ -170,19 +170,13 @@ The grid will be 10x10.
 # Game Message Protocol
 This protocol defines what messages are sent from the server to the client and vice versa, as well as what content the messages hold.
 
-* Join game
-  When a player joins the game, the server will check their message input, and then tell them if it is waiting for another player
-* Attack
-  The server will check if the inputted attack is a hit or miss, then send a response to the player who sent the attack, and another response to the player who was attacked
-
 ## Message Structure
-### Server
-* Join game
-  value = 
-* Attack
-### Client
+* Join game - index 0: This will be a byte string with a leading 0, followed by a byte string of the starting ship positions for the player
+* Attack - index 1: This will be a byte string with a leading 1, followed by a tile index, ex: "A4"
+
 ## Message Types
-* Join game
-  This includes the player's starting ship position
-* Attack
-  This is how a player attacks the enemies ship
+* Join game - index 0: This includes the player's starting ship position, and tells the server that the player is joining the game
+* Attack - index 1: This is how a player attacks the enemies ship, by entering a tile to "shoot" at on the enemy players board
+
+## Message Format
+All messages will be byte encoded, rather than json encoded
