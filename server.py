@@ -40,13 +40,13 @@ def accept_wrapper(sock):
 
 def join_game(data, socket):
     players.append([data, empty_board, socket])
-    if len(players) is 1:
+    if len(players) == 1:
         send_buffer += "0" + "Waiting for Player 2"
     else:
         send_buffer += "0" + "Game Starting..."
     
 def pass_turn(data, socket):
-    if(players[0][2] is socket):
+    if(players[0][2] == socket):
         current_player = 0
         target = 1
     else:
@@ -56,7 +56,7 @@ def pass_turn(data, socket):
     horizontal = letters_to_numbers[data[1]]
     index = (vertical * 11) + horizontal
     index_value = players[target][0][index]
-    if(index_value is not "." or index_value is not "O"):
+    if(index_value != "." or index_value != "O"):
         #hit
         players[target][0][index] = "X"
         players[current_player][1][index] = "X"
@@ -69,9 +69,9 @@ def pass_turn(data, socket):
 
 def message_decode(data, socket):
     readable = data.decode()
-    if readable[0] is 0:
+    if readable[0] == 0:
         join_game(readable[1:], socket)
-    elif readable[0] is 1:
+    elif readable[0] == 1:
         pass_turn(readable[1:], socket)
     else:
         pass
@@ -80,13 +80,13 @@ def message_decode(data, socket):
 def read(conn):
     try:
         # Should be ready to read
-        data = conn.recv(110)
+        data = conn.recv(111)
     except BlockingIOError as error:
         pass
     else:
         if data:
-            pass
             # process data
+            message_decode(data, conn)
         else:
             raise RuntimeError("Peer closed.")
 
@@ -122,25 +122,24 @@ try:
     while True:
         events = sel.select(timeout=None)
         for key, mask in events:
-            message = key.data
-            try:
-                if mask & selectors.EVENT_READ:
-                    read(message)
-                if mask & selectors.EVENT_WRITE:
-                    write(message)
-            except Exception:
-                print(
-                    "main: error: exception for",
-                    f"{message.addr}:\n{traceback.format_exc()}",
-                )
-                logger.info(
-                    "main: error: exception for",
-                    f"{message.addr}:\n{traceback.format_exc()}"
-                )
-                message.close()
-        # If there are still sockets open then continue the program
-        if not sel.get_map():
-            break
+            if key.data is None:
+                accept_wrapper(key.fileobj)
+            else:
+                message = key.data
+                try:
+                    if mask & selectors.EVENT_READ:
+                        read(message)
+                    if mask & selectors.EVENT_WRITE:
+                        write(message)
+                except Exception:
+                    print(
+                        "main: error: exception for",
+                        f"{message}:\n{traceback.format_exc()}",
+                    )
+                    logger.info(
+                        "main: error: exception for",
+                        f"{message}:\n{traceback.format_exc()}"
+                    )
 except KeyboardInterrupt:
     print("caught keyboard interrupt, exiting")
 finally:

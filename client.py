@@ -13,11 +13,13 @@ sel = selectors.DefaultSelector()
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="client.log", encoding='utf-8', level=logging.DEBUG, format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
+send_buffer = b""
+
 def message_decode(data, socket):
     readable = data.decode()
-    if readable[0] is 0:
+    if readable[0] == 0:
         print(readable[1:])
-    elif readable[0] is 1:
+    elif readable[0] == 1:
         print(readable[1:])
     else:
         pass
@@ -26,13 +28,13 @@ def message_decode(data, socket):
 def read(conn):
     try:
         # Should be ready to read
-        data = conn.recv(110)
+        data = conn.recv(4096)
     except BlockingIOError as error:
         pass
     else:
         if data:
-            pass
             # process data
+            message_decode(data, conn)
         else:
             raise RuntimeError("Peer closed.")
 
@@ -60,6 +62,7 @@ def start_game_connection(host, port, request):
     sock.connect_ex(addr)
     events = selectors.EVENT_READ | selectors.EVENT_WRITE
     # message = clientMessage.Message(sel, sock, addr, request)
+    send_buffer = request
     sel.register(sock, events, data=sock)
     
 # -------------------- START TO GAME ------------------------
@@ -73,29 +76,29 @@ if (not host or not port):
 board = input("\nPlease enter your ship positions:\n")
 
 #action, value = sys.argv[3], sys.argv[4]
-request = b"0" + board
+request = b"0" + board.encode("utf-8") 
 start_game_connection(host, port, request)
 
 print("Connected to the server!")
 
 try:
     while True:
-        events = sel.select(timeout=None)
+        events = sel.select(timeout=1)
         for key, mask in events:
             message = key.data
             try:
                 if mask & selectors.EVENT_READ:
                     read(message)
                 if mask & selectors.EVENT_WRITE:
-                    write(message)
+                    message.send(request)
             except Exception:
                 print(
                     "main: error: exception for",
-                    f"{message.addr}:\n{traceback.format_exc()}",
+                    f"{message}:\n{traceback.format_exc()}",
                 )
                 logger.info(
                     "main: error: exception for",
-                    f"{message.addr}:\n{traceback.format_exc()}"
+                    f"{message}:\n{traceback.format_exc()}"
                 )
                 message.close()
         # If there are still sockets open then continue the program
