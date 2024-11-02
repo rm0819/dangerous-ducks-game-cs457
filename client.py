@@ -7,50 +7,113 @@ import traceback
 import struct
 import logging
 
+class Client:
+    def __init__(self, sel, sock, serverAddr, request):
+        self.selector = sel
+        self.sock = sock
+        self.serverAddr = serverAddr
+        self.recv_buffer = b""
+        self.send_buffer = b""
+        self.request = request
+        self.response_created = False
+
+    def set_selector_events_mask(self, mode):
+        """Set selector to listen for events: mode is 'r', 'w', or 'rw'."""
+        if mode == "r":
+            events = selectors.EVENT_READ
+        elif mode == "w":
+            events = selectors.EVENT_WRITE
+        elif mode == "rw":
+            events = selectors.EVENT_READ | selectors.EVENT_WRITE
+        else:
+            raise ValueError(f"Invalid events mask mode {repr(mode)}.")
+        self.selector.modify(self.sock, events, data=self)
+
+    def close(self):
+        print("closing connection to", self.serverAddr)
+        try:
+            self.selector.unregister(self.sock)
+        except Exception as e:
+            print(
+                f"error: selector.unregister() exception for",
+                f"{self.serverAddr}: {repr(e)}",
+            )
+
+        try:
+            self.sock.close()
+        except OSError as e:
+            print(
+                f"error: socket.close() exception for",
+                f"{self.serverAddr}: {repr(e)}",
+            )
+        finally:
+            # Delete reference to socket object for garbage collection
+            self.sock = None
+
+    def message_decode(self, data):
+        readable = data.decode("utf-8")
+        if readable[0] == "0":
+            print(readable[1:])
+        elif readable[0] == "1":
+            print(readable[1:])
+        else:
+            print("There was an error receiving data from the server.")
+            pass
+            # error!
+    
+    def read(self):
+        try:
+            # Should be ready to read
+            data = self.sock.recv(4096)
+        except BlockingIOError as error:
+            pass
+        else:
+            if data:
+                # process data
+                self.message_decode(data)
+                self.set_selector_events_mask("w") # We read the data, we're writing now
+            else:
+                raise RuntimeError("Peer closed.")
+            
+    # Sends whatever data is in the request variable to the server
+    def write(self):
+        self.send_buffer += self.request
+        if self.send_buffer:
+            print("sending", repr(self.send_buffer), "to", self.serverAddr)
+            try:
+                # Should be ready to write
+                sent = self.sock.send(self.send_buffer)
+            except BlockingIOError:
+                # Resource temporarily unavailable (errno EWOULDBLOCK)
+                pass
+            else:
+                self.send_buffer = self.send_buffer[sent:]
+                self.request = None
+            
+        self.set_selector_events_mask("r") # We sent our data, listen for a response now
+    
+    def get_request_data(self):
+        print(self.request)
+        if self.request == None:
+            playerInput = input("What move would you like to input?")
+            self.request = ("0" + playerInput).encode("utf-8")
+
+    def process(self, mask):
+        if mask & selectors.EVENT_READ:
+            self.read()
+        if mask & selectors.EVENT_WRITE:
+            self.get_request_data()
+            self.write()
+
+
+
+# =================================================
+# ========== START OF THE CLIENT PROGRAM ==========
 sel = selectors.DefaultSelector()
 
 # Set up logging for client
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="client.log", encoding='utf-8', level=logging.DEBUG, format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
-
-send_buffer = b""
-
-def message_decode(data, socket):
-    readable = data.decode()
-    if readable[0] == 0:
-        print(readable[1:])
-    elif readable[0] == 1:
-        print(readable[1:])
-    else:
-        pass
-        # error!
-
-def read(conn):
-    try:
-        # Should be ready to read
-        data = conn.recv(4096)
-    except BlockingIOError as error:
-        pass
-    else:
-        if data:
-            # process data
-            message_decode(data, conn)
-        else:
-            raise RuntimeError("Peer closed.")
-
-def write(conn):
-    if send_buffer:
-        print("sending", repr(send_buffer), "to", conn.addr)
-        try:
-            # Should be ready to write
-            sent = conn.sock.send(send_buffer)
-        except BlockingIOError as error:
-            pass
-        else:
-            send_buffer = send_buffer[sent:]
-            # Close when the buffer is drained. The response has been sent.
-            #if sent and not self._send_buffer:
-                #self.close()
 
 def start_game_connection(host, port, request):
     addr = (host, int(port))
@@ -60,10 +123,10 @@ def start_game_connection(host, port, request):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.setblocking(False)
     sock.connect_ex(addr)
-    events = selectors.EVENT_READ | selectors.EVENT_WRITE
-    # message = clientMessage.Message(sel, sock, addr, request)
-    send_buffer = request
-    sel.register(sock, events, data=sock)
+    events = selectors.EVENT_WRITE
+    # Creates a client object, which handles sending data to the server and receiving data as well
+    client = Client(sel, sock, addr, request)
+    sel.register(sock, events, data=client)
     
 # -------------------- START TO GAME ------------------------
 print("\nWelcome to Battleship!")
@@ -85,22 +148,20 @@ try:
     while True:
         events = sel.select(timeout=1)
         for key, mask in events:
-            message = key.data
+            client = key.data
             try:
-                if mask & selectors.EVENT_READ:
-                    read(message)
-                if mask & selectors.EVENT_WRITE:
-                    message.send(request)
+                # Checks if the client is reading or writing, and if the server sent us any data
+                client.process(mask)
             except Exception:
                 print(
                     "main: error: exception for",
-                    f"{message}:\n{traceback.format_exc()}",
+                    f"{client}:\n{traceback.format_exc()}",
                 )
                 logger.info(
                     "main: error: exception for",
-                    f"{message}:\n{traceback.format_exc()}"
+                    f"{client}:\n{traceback.format_exc()}"
                 )
-                message.close()
+                client.close()
         # If there are still sockets open then continue the program
         if not sel.get_map():
             break
