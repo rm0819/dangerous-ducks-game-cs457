@@ -13,7 +13,7 @@ class Client:
         self.sock = sock
         self.serverAddr = serverAddr
         self.recv_buffer = b""
-        self.send_buffer = b""
+        self.send_buffer = []
         self.request = request
         self.response_created = False
 
@@ -52,10 +52,11 @@ class Client:
 
     def message_decode(self, data):
         readable = data.decode("utf-8")
-        if readable[0] == "0":
-            print(readable[1:])
-        elif readable[0] == "1":
-            print(readable[1:])
+        if readable[0] == "0": # Info message from the server
+            print(readable[2:])
+        elif readable[0] == "1": # Request for information from the server
+            print(readable[2:])
+            self.set_selector_events_mask("w") # We read the data, we're writing now
         else:
             print("There was an error receiving data from the server.")
             pass
@@ -71,32 +72,32 @@ class Client:
             if data:
                 # process data
                 self.message_decode(data)
-                self.set_selector_events_mask("w") # We read the data, we're writing now
             else:
                 raise RuntimeError("Peer closed.")
             
     # Sends whatever data is in the request variable to the server
     def write(self):
-        self.send_buffer += self.request
-        if self.send_buffer:
-            print("sending", repr(self.send_buffer), "to", self.serverAddr)
+        for req in self.send_buffer: # if there is something to send
+            # Get the player that the request is being sent to
+            print("sending", repr(req), "to", self.serverAddr)
             try:
-                # Should be ready to write
-                sent = self.sock.send(self.send_buffer)
+                # Send the data to the specified player
+                self.sock.send(req)
             except BlockingIOError:
                 # Resource temporarily unavailable (errno EWOULDBLOCK)
                 pass
             else:
-                self.send_buffer = self.send_buffer[sent:]
-                self.request = None
-            
-        self.set_selector_events_mask("r") # We sent our data, listen for a response now
+                self.send_buffer.remove(req)
+
+        if len(self.send_buffer) == 0:
+            self.set_selector_events_mask("r") # We sent all our data, listen for a response now
     
     def get_request_data(self):
-        print(self.request)
         if self.request == None:
             playerInput = input("What move would you like to input?")
             self.request = ("0" + playerInput).encode("utf-8")
+        else:
+            self.send_buffer.append(self.request)
 
     def process(self, mask):
         if mask & selectors.EVENT_READ:

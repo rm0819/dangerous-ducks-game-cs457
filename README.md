@@ -171,6 +171,24 @@ The grid will be 10x10.
 This protocol defines what messages are sent from the server to the client and vice versa, as well as what content the messages hold.
 
 ## Message Structure
+### Client Request Message Structure
+|# | # | String |
+|:-:|:-:|:-:|
+| Action type | Player number | Data for the action |
+
+#### Action type numbers
+* 0 - joining the game
+* 1 - Sending an attack
+
+### Server Request Message Structure
+|# | # | String |
+|:-:|:-:|:-:|
+| Action type | Player number | Data for the action |
+
+#### Action type numbers
+* 0 - Message to a client
+* 1 - Info request from the server. The server requires some type of information for the game to continue
+
 * Join game - index 0: This will be a byte string with a leading 0, followed by a byte string of the starting ship positions for the player
 * Attack - index 1: This will be a byte string with a leading 1, followed by a tile index, ex: "A4"
 
@@ -179,4 +197,4 @@ This protocol defines what messages are sent from the server to the client and v
 * Attack - index 1: This is how a player attacks the enemies ship, by entering a tile to "shoot" at on the enemy players board
 
 ## Message Format
-All messages will be byte encoded, rather than json encoded
+All messages will be byte encoded

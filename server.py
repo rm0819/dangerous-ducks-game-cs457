@@ -7,17 +7,19 @@ import traceback
 import logging
 import random
 
+class Players:
+    players = []
+
 class Server:
     def __init__(self, sel, sock, addr):
         self.sel = sel
         self.sock = sock
         self.addr = addr
         self.recv_buffer = b""
-        self.send_buffer = b""
+        self.send_buffer = []
         self.request = None
         self.response_created = False
         self.empty_board = "........../........../........../........../........../........../........../........../........../........../"
-        self.players = []
         self.letters_to_numbers = {
             'A': '0',
             'B': '1',
@@ -65,18 +67,18 @@ class Server:
         self.sel.modify(self.sock, events, data=self)
     
     def join_game(self, data):
-        self.players.append([data, self.empty_board, self.sock])
-        print(self.players)
-        if len(self.players) == 1:
-            self.request = ("0" + "Waiting for Player 2").encode("utf-8")
-            self.send_buffer += self.request
+        p.players.append([data, self.empty_board, self.sock])
+        if len(p.players) == 1:
+            self.request = ("00" + "Waiting for Player 2").encode("utf-8")
+            self.send_buffer.append(self.request) 
         else:
-            self.request = ("0" + "Game Starting...").encode("utf-8")
-            self.send_buffer += self.request
-            self.send_buffer += self.request
+            self.request = ("00" + "All players are here. Game Starting...").encode("utf-8")
+            self.send_buffer.append(self.request) 
+            self.request = ("01" + "All players are here. Game Starting...").encode("utf-8")
+            self.send_buffer.append(self.request) 
 
     def pass_turn(self, data):
-        if(self.players[0][2] == self.sock):
+        if(p.players[0][2] == self.sock):
             current_player = 0
             target = 1
         else:
@@ -85,17 +87,17 @@ class Server:
         vertical = data[0]
         horizontal = self.letters_to_numbers[data[1]]
         index = (vertical * 11) + horizontal
-        index_value = self.players[target][0][index]
+        index_value = p.players[target][0][index]
         if(index_value != "." or index_value != "O"):
             #hit
-            self.players[target][0][index] = "X"
-            self.players[current_player][1][index] = "X"
+            p.players[target][0][index] = "X"
+            p.players[current_player][1][index] = "X"
         else:
             #miss
-            self.players[target][0][index] = "O"
-            self.players[current_player][1][index] = "O"
+            p.players[target][0][index] = "O"
+            p.players[current_player][1][index] = "O"
             pass
-        send_buffer += "1" +  self.players[current_player][0] + self.players[current_player][1]
+        send_buffer += "1" +  p.players[current_player][0] + p.players[current_player][1]
 
     def message_decode(self, data):
         readable = data.decode("utf-8")
@@ -122,20 +124,21 @@ class Server:
             
         self.set_selector_events_mask("w") # We read the data, we're writing now
 
-    # Sends whatever data is in the request variable to the client
+    # Sends data to specified client
     def write(self):
-        if self.send_buffer:
-            print("sending", repr(self.send_buffer), "to", self.addr)
+        for req in self.send_buffer: # if there is something to send
+            # Get the player that the request is being sent to
+            player = p.players[int(req.decode("utf-8")[1])]
+            print("sending", repr(req), "to", player[2].getpeername())
             try:
-                # Should be ready to write
-                sent = self.sock.send(self.send_buffer)
+                # Send the data to the specified player
+                player[2].send(req)
             except BlockingIOError:
                 # Resource temporarily unavailable (errno EWOULDBLOCK)
                 pass
             else:
-                self.send_buffer = self.send_buffer[sent:]
-                self.request = None
-            
+                self.send_buffer.remove(req)
+
         if len(self.send_buffer) == 0:
             self.set_selector_events_mask("r") # We sent all our data, listen for a response now
 
@@ -158,6 +161,9 @@ sel = selectors.DefaultSelector()
 # Configure logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="server.log", encoding='utf-8', level=logging.DEBUG, format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+
+# Data structure to hold player values
+p = Players()
 
 def accept_wrapper(sock):
     conn, addr = sock.accept()  # Should be ready to read
