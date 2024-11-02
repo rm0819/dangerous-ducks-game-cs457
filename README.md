@@ -172,9 +172,12 @@ This protocol defines what messages are sent from the server to the client and v
 
 ## Message Structure
 ### Client Request
-|# | # | String |
-|:-:|:-:|:-:|
-| Action type | Player number | Data for the action |
+| # |String |
+|:-:|:-:|
+| Action type | Data for the action |
+Example: b"0*board-configuration*"
+
+This is a join game request to the server. The 0 indicates joining the game, and the board config data follows the zero.
 
 #### Action type numbers
 * 0 - joining the game
@@ -184,6 +187,9 @@ This protocol defines what messages are sent from the server to the client and v
 |# | # | String |
 |:-:|:-:|:-:|
 | Action type | Player number | Data for the action |
+Example: b"00Waiting for Player 2..."
+
+This is a message request to the first player, with a string of information.
 
 #### Action type numbers
 * 0 - Message to a client
