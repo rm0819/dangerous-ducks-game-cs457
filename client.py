@@ -56,11 +56,16 @@ class Client:
             print(readable[2:])
         elif readable[0] == "1": # Request for information from the server
             print(readable[2:])
-            self.set_selector_events_mask("w") # We read the data, we're writing now
+            # Read the data, its time to write
+            self.set_selector_events_mask("w")
+        elif readable[0] == "2": # Message containing ship board
+            print("Updated ship board:")
+            print(readable[2:])
+        elif readable[0] == "3": # Message containing attack board
+            print("Updated attack board:")
+            print(readable[2:])
         else:
             print("There was an error receiving data from the server.")
-            pass
-            # error!
     
     def read(self):
         try:
@@ -87,15 +92,23 @@ class Client:
                 # Resource temporarily unavailable (errno EWOULDBLOCK)
                 pass
             else:
-                self.send_buffer.remove(req)
+                pass
+
+        # Clear request and buffer after all information has been sent
+        self.send_buffer.clear()
+        self.request = None
 
         if len(self.send_buffer) == 0:
             self.set_selector_events_mask("r") # We sent all our data, listen for a response now
     
     def get_request_data(self):
         if self.request == None:
-            playerInput = input("What move would you like to input?")
-            self.request = ("0" + playerInput).encode("utf-8")
+            playerInput = input("What move would you like to input? ")
+            while len(playerInput) != 2:
+                print("=== Error: Input must be in the form of <#><letter>. Ex. 2D ===")
+                playerInput = input("What move would you like to input? ")
+            self.request = ("1" + str(playerInput)).encode("utf-8")
+            self.send_buffer.append(self.request)
         else:
             self.send_buffer.append(self.request)
 

@@ -192,6 +192,8 @@ This is a join game request to the server. The 0 indicates joining the game, and
 #### Action type numbers
 * 0 - Message to a client
 * 1 - Info request from the server. The server will send a request to the client asking for some information
+* 2 - Ship board info message to a client. Includes the player's ship board string
+* 3 - Attack board info message to a client. Includes the player's attack board string
 
 #### Example: 
 b"00Waiting for Player 2..."
