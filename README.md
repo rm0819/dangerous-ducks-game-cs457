@@ -141,7 +141,6 @@ Team members will check in twice a week to discuss weekly goals and state of aff
 When entering your board configuration to connect to the server, the format is as follows:\
 ........../........../........../........../........../........../........../........../........../..........\
 Each forward slash indicates a new row, and the dots are empty spaces.\
-<ins>**The game currently only works when entering the empty board configuration shown above, so please don't change it when testing!**</ins>
 
 
 ## Grid Size
