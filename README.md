@@ -158,21 +158,21 @@ The grid will be 10x10.
 |H| | | | | | | | | | |
 |I| | | | | | | | | | |
 |J| | | | | | | | | | |
-
-Example grid in the game will look like: (assume correct spacing)
-
-   A B C D E F G H I J\
-1  . . . . . . . . . . \
-2  . . . . . . . . . .\
-3  . . . . . . . . . .\
-4  . . . . . . . . . .\
-5  . . . . . . . . . .\
-6  . . . . . . . . . .\
-7  . . . . . . . . . .\
-8  . . . . . . . . . .\
-9  . . . . . . . . . .\
+### Example
+Example grid in the game looks like:
+```
+   A B C D E F G H I J
+1  . . . . . . . . . . 
+2  . . . . . . . . . .
+3  . . . . . . . . . .
+4  . . . . . . . . . .
+5  . . . . . . . . . .
+6  . . . . . . . . . .
+7  . . . . . . . . . .
+8  . . . . . . . . . .
+9  . . . . . . . . . .
 10 . . . . . . . . . .
-
+```
 ## Ship Sizes
 | Ship       | Size |
 | :-------   |  :-: |
@@ -185,35 +185,34 @@ Example grid in the game will look like: (assume correct spacing)
 # Game Message Protocol
 This protocol defines what messages are sent from the server to the client and vice versa, as well as what content the messages hold.
 
-## Message Structure
-### Client Request
+## Client Request Message Structure
 | # |String |
 |:-:|:-:|
 | Action type | Data for the action |
 
-#### Action type numbers
+### Action type numbers
 * 0 - joining the game
 * 1 - Sending an attack
 
-#### Example: 
+### Example: 
 b"0........../........../........../........../........../........../........../........../........../.........."\
 This is a join game request to the server. The 0 indicates joining the game, and the board config data follows the zero.
 
 b"15H"\
 This is an attack request from the client to the server. The 1 indicates its an attack, and the "5H" is the tile the player wants to attack.
 
-### Server Request
+## Server Request Message Structure
 |# | # | String |
 |:-:|:-:|:-:|
 | Action type | Player number | Data for the action |
 
-#### Action type numbers
+### Action type numbers
 * 0 - Message to a client
 * 1 - Info request from the server. The server will send a request to the client asking for some information
 * 2 - Ship board info message to a client. Includes the player's ship board string
 * 3 - Attack board info message to a client. Includes the player's attack board string
 
-#### Examples: 
+### Examples: 
 b"00Waiting for Player 2..."\
 This is a message request to the first player, with a string of information.
 
