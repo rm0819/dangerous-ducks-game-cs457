@@ -13,7 +13,10 @@ This is a simple network battleship game implemented using Python and sockets.
 **How to play:**
 1. **Start the server:** python server.py \<host\> \<port\>
 2. **Connect client to server:** python client.py, then follow instructions. Instructions on how to enter board configurations can be found in the [starting client section](#starting-client).
-3. **Play the game:** Players will take turns entering their moves. Player 1 will enter a move, then wait for player 2's response if its a hit. First player to hit every spot on all the enemy battleships wins!
+3. **Play the game:**
+    1. After both clients are set up and connected, the server will ask a random player for a tile to attack.
+    2. Once the player sends an attack, the server will compute it, and send an updated board back to both players, and then ask the other player for their attack.
+    3. This continues on, but the game cannot be won or ended yet.
 
 **Technologies used:**
 * Python
@@ -141,7 +144,6 @@ Team members will check in twice a week to discuss weekly goals and state of aff
 When entering your board configuration to connect to the server, the format is as follows:\
 ........../........../........../........../........../........../........../........../........../..........\
 Each forward slash indicates a new row, and the dots are empty spaces.\
-
 
 ## Grid Size
 The grid will be 10x10.
