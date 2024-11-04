@@ -73,7 +73,7 @@ Implement client-server architecture capable of at least two simultaneous client
 - [x] Sprint 0: Form teams, Setup Tools, Submit SOW [Template] (Sept 08-Sept 22)
 - [x] Sprint 1: Socket Programming, TCP Client Server (Sept 22-Oct 06) 
 - [x] Sprint 2: Develop Game Message Protocol, Manage Client connections (Oct 06-Oct 20)
-- [ ] Sprint 3: Multi-player functionality, Synchronize state across clients. (Oct 20-Nov 03)
+- [x] Sprint 3: Multi-player functionality, Synchronize state across clients. (Oct 20-Nov 03)
 - [ ] Sprint 4: Game play, Game State (Nov 03-Nov 17)
 - [ ] Sprint 5: Implement Error Handling and Testing (Nov 17-Dec 6)
   
@@ -158,6 +158,20 @@ The grid will be 10x10.
 |I| | | | | | | | | | |
 |J| | | | | | | | | | |
 
+Example grid in the game will look like:
+
+   A B C D E F G H I J
+1  . . . . . . . . . . 
+2  . . . . . . . . . .
+3  . . . . . . . . . .
+4  . . . . . . . . . .
+5  . . . . . . . . . .
+6  . . . . . . . . . .
+7  . . . . . . . . . .
+8  . . . . . . . . . .
+9  . . . . . . . . . .
+10 . . . . . . . . . .
+
 #### Ship Sizes
 | Ship       | Size |
 | :-------   |  :-: |
@@ -184,6 +198,9 @@ This protocol defines what messages are sent from the server to the client and v
 b"0*board-configuration*"
 This is a join game request to the server. The 0 indicates joining the game, and the board config data follows the zero.
 
+b"15H"
+This is an attack request from the client to the server. The 1 indicates its an attack, and the "5H" is the tile the player wants to attack.
+
 ### Server Request
 |# | # | String |
 |:-:|:-:|:-:|
@@ -195,9 +212,12 @@ This is a join game request to the server. The 0 indicates joining the game, and
 * 2 - Ship board info message to a client. Includes the player's ship board string
 * 3 - Attack board info message to a client. Includes the player's attack board string
 
-#### Example: 
+#### Examples: 
 b"00Waiting for Player 2..."
 This is a message request to the first player, with a string of information.
+
+b"30........../........../........../........../........../........../........../........../........o./.........."
+This is an attack board update sent to the first player, with the updated board information.
 
 ## Message Format
 All messages will be byte encoded

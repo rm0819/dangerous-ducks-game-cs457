@@ -24,7 +24,7 @@ class ClientConnection:
         self.send_buffer = []
         self.request = None
         self.response_created = False
-        self.empty_board = "........../........../........../........../........../........../........../........../........../........../"
+        self.empty_board = "........../........../........../........../........../........../........../........../........../.........."
         self.letters_to_numbers = {
             'A': 0,
             'B': 1,

@@ -16,6 +16,18 @@ class Client:
         self.send_buffer = []
         self.request = request
         self.response_created = False
+        self.numbers_to_letters = {
+            0: 'A',
+            1: 'B',
+            2: 'C',
+            3: 'D',
+            4: 'E',
+            5: 'F',
+            6: 'G',
+            7: 'H',
+            8: 'I',
+            9: 'J'
+        }
 
     def set_selector_events_mask(self, mode):
         """Set selector to listen for events: mode is 'r', 'w', or 'rw'."""
@@ -52,20 +64,46 @@ class Client:
 
     def message_decode(self, data):
         readable = data.decode("utf-8")
+        info = readable[2:]
         if readable[0] == "0": # Info message from the server
-            print(readable[2:])
+            print(info)
         elif readable[0] == "1": # Request for information from the server
-            print(readable[2:])
+            print(info)
             # Read the data, its time to write
             self.set_selector_events_mask("w")
         elif readable[0] == "2": # Message containing ship board
             print("Updated ship board:")
-            print(readable[2:])
+            self.print_formatted_board(info)
         elif readable[0] == "3": # Message containing attack board
             print("Updated attack board:")
-            print(readable[2:])
+            self.print_formatted_board(info)
+
         else:
             print("There was an error receiving data from the server.")
+
+    def print_formatted_board(self, board):
+        formatted_board = board.replace("/", "\n")
+        # Column labels
+        print("   ", end="")
+        for i in range(10):
+            print(self.numbers_to_letters[i] + " ", end="")
+        print()
+
+        row = 0
+        for i in formatted_board:
+            # Row labels
+            if row % 11 == 0:
+                if row // 11 == 9: # if the last row
+                    print(str((row // 11) + 1) + " ", end="")
+                else: # all other rows
+                    print(str((row // 11) + 1) + "  ", end="")
+            row += 1
+
+            if i == "\n":
+                print(i, end="")
+            else:
+                print(i + " ", end="")
+        print()
     
     def read(self):
         try:
