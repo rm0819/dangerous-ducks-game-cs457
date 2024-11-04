@@ -107,8 +107,10 @@ class ClientConnection:
         index_value = p.players[target][0][index].lower()
         if index_value != "." and index_value != "o":
             #hit
-            p.players[target][0][index] = "x"
-            p.players[current_player][1][index] = "x"
+            updated_target_ship_board = p.players[target][0][:index] + "x" + p.players[target][0][index + 1:]
+            updated_current_player_attack_board = p.players[current_player][1][:index] + "x" + p.players[current_player][1][index + 1:]
+            p.players[target][0] = updated_target_ship_board
+            p.players[current_player][1] = updated_current_player_attack_board
         else:
             #miss
             updated_target_ship_board = p.players[target][0][:index] + "o" + p.players[target][0][index + 1:]
