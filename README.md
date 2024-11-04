@@ -12,7 +12,7 @@ This is a simple network battleship game implemented using Python and sockets.
 
 **How to play:**
 1. **Start the server:** python server.py \<host\> \<port\>
-2. **Connect client to server:** python client.py, then follow instructions
+2. **Connect client to server:** python client.py, then follow instructions. Instructions on how to enter board configurations can be found in the [starting client section](#starting-client).
 3. **Play the game:** Players will take turns entering their moves. Player 1 will enter a move, then wait for player 2's response if its a hit. First player to hit every spot on all the enemy battleships wins!
 
 **Technologies used:**
@@ -137,13 +137,14 @@ Team members will check in twice a week to discuss weekly goals and state of aff
 <br/>
 
 # Technical Details
-The game can be implemented in multiple ways. Two possible ways are:
-  1. Players both input their battleship positions, which are stored in some matrix. When one player sends their attack to the other, the server will verify if it is a "hit".
-  2. Same input, but the players themselves send a response verifying it was a "hit" or "miss", like the original battleship game
+## Starting client
+When entering your board configuration to connect to the server, the format is as follows:\
+........../........../........../........../........../........../........../........../........../..........\
+Each forward slash indicates a new row, and the dots are empty spaces.\
+<ins>**The game currently only works when entering the empty board configuration shown above, so please don't change it when testing!**</ins>
 
-<br/>
 
-#### Grid Size
+## Grid Size
 The grid will be 10x10.
 | |1|2|3|4|5|6|7|8|9|10|
 |:-:|-|-|-|-|-|-|-|-|-|-|
@@ -158,21 +159,21 @@ The grid will be 10x10.
 |I| | | | | | | | | | |
 |J| | | | | | | | | | |
 
-Example grid in the game will look like:
+Example grid in the game will look like: (assume correct spacing)
 
-   A B C D E F G H I J
-1  . . . . . . . . . . 
-2  . . . . . . . . . .
-3  . . . . . . . . . .
-4  . . . . . . . . . .
-5  . . . . . . . . . .
-6  . . . . . . . . . .
-7  . . . . . . . . . .
-8  . . . . . . . . . .
-9  . . . . . . . . . .
+   A B C D E F G H I J\
+1  . . . . . . . . . . \
+2  . . . . . . . . . .\
+3  . . . . . . . . . .\
+4  . . . . . . . . . .\
+5  . . . . . . . . . .\
+6  . . . . . . . . . .\
+7  . . . . . . . . . .\
+8  . . . . . . . . . .\
+9  . . . . . . . . . .\
 10 . . . . . . . . . .
 
-#### Ship Sizes
+## Ship Sizes
 | Ship       | Size |
 | :-------   |  :-: |
 | Carrier    |   5  |
@@ -195,10 +196,10 @@ This protocol defines what messages are sent from the server to the client and v
 * 1 - Sending an attack
 
 #### Example: 
-b"0*board-configuration*"
+b"0........../........../........../........../........../........../........../........../........../.........."\
 This is a join game request to the server. The 0 indicates joining the game, and the board config data follows the zero.
 
-b"15H"
+b"15H"\
 This is an attack request from the client to the server. The 1 indicates its an attack, and the "5H" is the tile the player wants to attack.
 
 ### Server Request
@@ -213,10 +214,10 @@ This is an attack request from the client to the server. The 1 indicates its an 
 * 3 - Attack board info message to a client. Includes the player's attack board string
 
 #### Examples: 
-b"00Waiting for Player 2..."
+b"00Waiting for Player 2..."\
 This is a message request to the first player, with a string of information.
 
-b"30........../........../........../........../........../........../........../........../........o./.........."
+b"30........../........../........../........../........../........../........../........../........o./.........."\
 This is an attack board update sent to the first player, with the updated board information.
 
 ## Message Format
