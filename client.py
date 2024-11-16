@@ -6,6 +6,7 @@ import selectors
 import traceback
 import struct
 import logging
+import argparse
 
 class Client:
     def __init__(self, sel, sock, serverAddr, request):
@@ -182,7 +183,14 @@ def start_game_connection(host, port, request):
     
 # -------------------- START TO GAME ------------------------
 print("\nWelcome to Battleship!")
-host, port = input("Please enter the host and port you'd like to connect to: ").split()
+
+parser = argparse.ArgumentParser(description='Server for Battleship terminal game')
+parser.add_argument('-i', help='Server IP', required=True)
+parser.add_argument('-p', help='Server port', required=True)
+args = parser.parse_args()
+
+host, port = (args.i, args.p)
+
 if (not host or not port):
     print("Enter host and port as such: <host> <port>")
     sys.exit(1)

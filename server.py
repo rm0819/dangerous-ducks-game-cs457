@@ -6,6 +6,7 @@ import selectors
 import traceback
 import logging
 import random
+import argparse
 
 class ServerData:
     # players holds 3 things in the list
@@ -216,11 +217,11 @@ def accept_wrapper(sock):
     clientConnection = ClientConnection(sel, conn, addr)
     sel.register(conn, selectors.EVENT_READ, data=clientConnection)
 
-if len(sys.argv) != 3:
-    print("usage:", sys.argv[0], "<host> <port>")
-    sys.exit(1)
+parser = argparse.ArgumentParser(description='Server for Battleship terminal game')
+parser.add_argument('-p', help='Listening port', required=True)
+args = parser.parse_args()
 
-host, port = sys.argv[1], int(sys.argv[2])
+host, port = '0.0.0.0', int(args.p)
 lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # Avoid bind() exception: OSError: [Errno 48] Address already in use
 lsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
