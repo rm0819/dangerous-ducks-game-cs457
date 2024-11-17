@@ -290,9 +290,14 @@ if (not host or not port):
     print("Enter host and port as such: <host> <port>")
     sys.exit(1)
 
-# Get board configuration
+#hardcode:
+board = "11111...../2222....../3333....../444......./55......../........../........../........../........../.........."
+
+# cli input:
 # board = input("\nPlease enter your ship positions:\n")
-board = initialize_board()
+
+#real:
+# board = initialize_board()
 
 #action, value = sys.argv[3], sys.argv[4]
 request = b"0" + board.encode("utf-8") 
