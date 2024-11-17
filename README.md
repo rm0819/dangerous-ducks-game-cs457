@@ -174,14 +174,14 @@ Example grid in the game looks like:
 9  . . . . . . . . . .
 10 . . . . . . . . . .
 ```
-## Ship Sizes
-| Ship       | Size |
-| :-------   |  :-: |
-| Carrier    |   5  |
-| Battleship |   4  | 
-| Cruiser    |   3  | 
-| Submarine  |   3  |
-| Destroyer  |   2  |
+## Ship Sizes And Indicators
+| Ship       | Size | Indicator |
+| :-------   |  :-: |  :-: |
+| Carrier    |   5  |   1  |
+| Battleship |   4  |   2  |
+| Cruiser    |   3  |   3  | 
+| Submarine  |   3  |   4  |
+| Destroyer  |   2  |   5  |
 
 # Game Message Protocol
 This protocol defines what messages are sent from the server to the client and vice versa, as well as what content the messages hold.
