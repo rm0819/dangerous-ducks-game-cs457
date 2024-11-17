@@ -104,7 +104,7 @@ Implement client-server architecture capable of at least two simultaneous client
 ### Software:
 [List the necessary software tools, programming languages (Python), libraries (socket, threading, etc.), and operating systems.]
 - Python
-- Python libraries, including: socket, threading, possibly a battleship library
+- Python libraries, including: socket, threading
   
 ## Assumptions:
 [State any assumptions that are being made about the project, such as network connectivity or availability of resources.]
