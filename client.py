@@ -159,7 +159,6 @@ class Client:
             self.write()
 
 
-
 # =================================================
 # ========== START OF THE CLIENT PROGRAM ==========
 sel = selectors.DefaultSelector()
@@ -167,6 +166,102 @@ sel = selectors.DefaultSelector()
 # Set up logging for client
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="client.log", encoding='utf-8', level=logging.DEBUG, format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+
+# non-class usage for initialize. can probably use for class as well but I dont want to break anything rn
+def print_formatted_board(board):
+        
+        numbers_to_letters = {
+            0: 'A',
+            1: 'B',
+            2: 'C',
+            3: 'D',
+            4: 'E',
+            5: 'F',
+            6: 'G',
+            7: 'H',
+            8: 'I',
+            9: 'J'
+        }
+
+        formatted_board = board.replace("/", "\n")
+        # Column labels
+        print("   ", end="")
+        for i in range(10):
+            print(numbers_to_letters[i] + " ", end="")
+        print()
+
+        row = 0
+        for i in formatted_board:
+            # Row labels
+            if row % 11 == 0:
+                if row // 11 == 9: # if the last row
+                    print(str((row // 11) + 1) + " ", end="")
+                else: # all other rows
+                    print(str((row // 11) + 1) + "  ", end="")
+            row += 1
+
+            if i == "\n":
+                print(i, end="")
+            else:
+                print(i + " ", end="")
+        print()
+
+def placement_validator(board, coordinate, direction, size, boat_number):
+    board = list(board)
+    vertical = int(coordinate[1:]) - 1
+    print(vertical)
+    horizontal = ord(coordinate[0]) - 65
+    print(horizontal)
+    index = (vertical * 11) + horizontal
+    print(direction)
+    if direction == "up": 
+        step_by = -11
+    elif direction == "down":
+        step_by = 11
+    elif direction == "left":
+        step_by = -1
+    elif direction == "right":
+        step_by = 1
+    else:
+        print("Your direction was invalid. Your options are (up, down, left, right). Try again.")
+        return None
+            
+    for i in range(size):
+                if index >= 0 and index < len(board):
+                    if board[index] == '.':
+                        board[index] = str(boat_number)
+                        index += step_by
+                    elif board[index] == '/':
+                        print("Your entry left the boundaries of the board! Try again.")
+                        return None
+                    else:
+                        print("Your entry intersected with an existing ship! Try again.")
+                        return None
+                else:
+                    print("Your entry left the boundaries of the board! Try again.")
+                    return None
+    return ''.join(board)
+                
+def initialize_board():
+    ship_types = ("Carrier", "Battleship", "Cruiser", "Submarine", "Destroyer")
+    ship_lengths = (5,4,4,3,2)
+    board = "........../........../........../........../........../........../........../........../........../.........."
+    print("First, lets place your ships. You have a Carrier (Length 5), Battleship (Length 4), Cruiser (Length 3), Submarine (Length 3), and Destroyer (Length 2)")
+    print("Your empty board looks like this: ")
+    print_formatted_board("".join(board))
+    print("For each ship, pick a starting coordinate and direction (up, down, left, right)")
+    print("ie: C2 down")
+    for i in range(5):
+        retry_prompt = True
+        while(retry_prompt):
+            coordinate, direction = input(f"Input a starting coordinate and length for your {ship_types[i]} (Length {ship_lengths[i]}).\n").split()
+            validate_value = placement_validator(board, coordinate.upper().strip(), direction.lower().strip(), ship_lengths[i], i+1)
+            if validate_value is not None:
+                board = validate_value
+                retry_prompt = False
+                print("Your board now looks like this:")
+                print_formatted_board("".join(board))
+    return board
 
 def start_game_connection(host, port, request):
     addr = (host, int(port))
@@ -196,7 +291,8 @@ if (not host or not port):
     sys.exit(1)
 
 # Get board configuration
-board = input("\nPlease enter your ship positions:\n")
+# board = input("\nPlease enter your ship positions:\n")
+board = initialize_board()
 
 #action, value = sys.argv[3], sys.argv[4]
 request = b"0" + board.encode("utf-8") 
