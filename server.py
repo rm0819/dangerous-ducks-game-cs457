@@ -13,6 +13,9 @@ class ServerData:
     # Ship positions board holds your ships positions, and your enemies hits and misses
     # | ship positions board | board containing hits and misses | socket |
     players = []
+
+    # "Carrier", "Battleship", "Cruiser", "Submarine", "Destroyer" sunk flags in that order for each player.
+    ship_sunk_flags = [[False, False, False, False, False],[False, False, False, False, False]]
     first = 0
     second = 1
 
@@ -127,14 +130,79 @@ class ClientConnection:
         self.send_buffer.append(self.request)
 
         # CHECK GAME STATE (is the game over, has a ship been sunk, etc.)
-        self.check_game_state()
+        end_game = self.check_game_state(current_player, target)
+        if end_game:
+            self.end_game()
 
         # Request attack move from the other player
         self.request = ("1" + str(target) + "Please enter which tile you would like to attack (Ex. 1A):").encode("utf-8")
         self.send_buffer.append(self.request)
 
-    def check_game_state(self):
+    def check_game_state(self, current_player, target):
         # Needs to check boards to see if any ships are completely sunk, or if all ships have been sunk
+        # "Carrier", "Battleship", "Cruiser", "Submarine", "Destroyer"
+        if '1' not in p.players[target][1]:
+            if not p.ship_sunk_flags[target][0]:
+                #Carrier Sunk
+                #Telling attacker
+                self.request = ("0" + str(current_player) + "You sunk Player " + str(target + 1) + "'s Carrier!").encode("utf-8")
+                self.send_buffer.append(self.request)
+                #Telling target
+                self.request = ("0" + str(target) + "Player " + str(current_player + 1) + " sunk your Carrier!").encode("utf-8")
+                self.send_buffer.append(self.request)
+
+                p.ship_sunk_flags[target][0] = True
+        if '2' not in p.players[target][1]:
+            if not p.ship_sunk_flags[target][1]:
+                #Battleship Sunk
+                #Telling attacker
+                self.request = ("0" + str(current_player) + "You sunk Player " + str(target + 1) + "'s Battleship!").encode("utf-8")
+                self.send_buffer.append(self.request)
+                #Telling target
+                self.request = ("0" + str(target) + "Player " + str(current_player + 1) + " sunk your Battleship!").encode("utf-8")
+                self.send_buffer.append(self.request)
+
+                p.ship_sunk_flags[target][1] = True
+        if '3' not in p.players[target][1]:
+            if not p.ship_sunk_flags[target][2]:
+                #Cruiser Sunk
+                #Telling attacker
+                self.request = ("0" + str(current_player) + "You sunk Player " + str(target + 1) + "'s Cruiser!").encode("utf-8")
+                self.send_buffer.append(self.request)
+                #Telling target
+                self.request = ("0" + str(target) + "Player " + str(current_player + 1) + " sunk your Cruiser!").encode("utf-8")
+                self.send_buffer.append(self.request)
+
+                p.ship_sunk_flags[target][2] = True
+        if '4' not in p.players[target][1]:
+            if not p.ship_sunk_flags[target][3]:
+                #Submarine Sunk
+                #Telling attacker
+                self.request = ("0" + str(current_player) + "You sunk Player " + str(target + 1) + "'s Submarine!").encode("utf-8")
+                self.send_buffer.append(self.request)
+                #Telling target
+                self.request = ("0" + str(target) + "Player " + str(current_player + 1) + " sunk your Submarine!").encode("utf-8")
+                self.send_buffer.append(self.request)
+
+                p.ship_sunk_flags[target][3] = True
+        if '5' not in p.players[target][1]:
+            if not p.ship_sunk_flags[target][4]:
+                #Destroyer Sunk
+                #Telling attacker
+                self.request = ("0" + str(current_player) + "You sunk Player " + str(target + 1) + "'s Destroyer!").encode("utf-8")
+                self.send_buffer.append(self.request)
+                #Telling target
+                self.request = ("0" + str(target) + "Player " + str(current_player + 1) + " sunk your Destroyer!").encode("utf-8")
+                self.send_buffer.append(self.request)
+
+                p.ship_sunk_flags[target][4] = True
+        #all target's ships sunk?
+        if False not in p.ship_sunk_flags[target]:
+            return True
+        else: 
+            return False
+        
+    def end_game():
         pass
 
 
