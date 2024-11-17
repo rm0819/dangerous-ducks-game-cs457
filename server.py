@@ -95,7 +95,7 @@ class ClientConnection:
             # Send an info request to starting player asking for info, and a message to the other playing saying waiting for player 1's move
             self.request = ("0" + str(p.second) + "Player " + str(p.first + 1) + " is going first. Waiting for their move...").encode("utf-8")
             self.send_buffer.append(self.request)
-            self.request = ("1" + str(p.first) + "You are going first! Please enter which tile you would like to attack (Ex. 1A):").encode("utf-8")
+            self.request = ("1" + str(p.first) + "You are going first! Please enter which tile you would like to attack (Ex. A1):").encode("utf-8")
             self.send_buffer.append(self.request)
 
     def pass_turn(self, data):
@@ -105,8 +105,8 @@ class ClientConnection:
         else:
             current_player = 1
             target = 0
-        vertical = int(data[0]) - 1
-        horizontal = self.letters_to_numbers[data[1]].upper()
+        vertical = int(data[1]) - 1
+        horizontal = self.letters_to_numbers[data[0]].upper()
         index = (vertical * 11) + horizontal
         index_value = p.players[target][0][index].lower()
         if index_value != "." and index_value != "o":
@@ -132,7 +132,7 @@ class ClientConnection:
         # CHECK GAME STATE (is the game over, has a ship been sunk, etc.)
         end_game = self.check_game_state(current_player, target)
         if end_game:
-            self.end_game()
+            self.end_game(current_player, target)
 
         # Request attack move from the other player
         self.request = ("1" + str(target) + "Please enter which tile you would like to attack (Ex. 1A):").encode("utf-8")
@@ -202,7 +202,7 @@ class ClientConnection:
         else: 
             return False
         
-    def end_game(self,):
+    def end_game(self, current_player, target):
         self.request = ("0" + str(current_player) + "You Win!").encode("utf-8")
         self.send_buffer.append(self.request)
         #Telling target
