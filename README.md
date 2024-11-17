@@ -192,8 +192,9 @@ This protocol defines what messages are sent from the server to the client and v
 | Action type | Data for the action |
 
 ### Action type numbers
-* 0 - joining the game
+* 0 - Joining the game
 * 1 - Sending an attack
+* 2 - Play again
 
 ### Example: 
 b"0........../........../........../........../........../........../........../........../........../.........."\
@@ -212,6 +213,8 @@ This is an attack request from the client to the server. The 1 indicates its an 
 * 1 - Info request from the server. The server will send a request to the client asking for some information
 * 2 - Ship board info message to a client. Includes the player's ship board string
 * 3 - Attack board info message to a client. Includes the player's attack board string
+* 4 - Game end message to the client. Includes a message with info about who won and lost
+* 5 - Error message sent to the player. Usually sent when the other player disconnects
 
 ### Examples: 
 b"00Waiting for Player 2..."\

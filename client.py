@@ -13,7 +13,7 @@ class Client:
         self.selector = sel
         self.sock = sock
         self.serverAddr = serverAddr
-        self.recv_buffer = b""
+        self.recv_buffer = []
         self.send_buffer = []
         self.request = request
         self.response_created = False
@@ -64,23 +64,42 @@ class Client:
             self.sock = None
 
     def message_decode(self, data):
-        readable = data.decode("utf-8")
-        info = readable[2:]
-        if readable[0] == "0": # Info message from the server
-            print(info)
-        elif readable[0] == "1": # Request for information from the server
-            print(info)
-            # Read the data, its time to write
-            self.set_selector_events_mask("w")
-        elif readable[0] == "2": # Message containing ship board
-            print("Updated ship board:")
-            self.print_formatted_board(info)
-        elif readable[0] == "3": # Message containing attack board
-            print("Updated attack board:")
-            self.print_formatted_board(info)
-
-        else:
-            print("There was an error receiving data from the server.")
+        decodedData = data.decode("utf-8")
+        for i in range(decodedData.count("~")):
+            info = decodedData[2:decodedData.index("~")]
+            if decodedData[0] == "0": # Info message from the server
+                print(info)
+            elif decodedData[0] == "1": # Request for information from the server
+                print(info)
+                # Read the data, its time to write
+                self.set_selector_events_mask("w")
+            elif decodedData[0] == "2": # Message containing ship board
+                print("Your ships:")
+                self.print_formatted_board(info)
+            elif decodedData[0] == "3": # Message containing attack board
+                print("Your attacks:")
+                self.print_formatted_board(info)
+            elif decodedData[0] == "4":
+                print(info)
+                inp = input("Would you like to play again? y/n: ")
+                if inp.lower() == "y":
+                    global sel 
+                    sel = selectors.DefaultSelector()
+                    req = b"0" + board.encode("utf-8") 
+                    start_game_connection(host, port, req)
+                    print("Connecting to the server to play again!")
+                    logger.info("Connecting to the server to play again.")
+                else:
+                    print("Exiting program...")
+                    sys.exit()
+            elif decodedData[0] == "5": # Message saying the server stopped, and the reason why
+                print(info)
+                print("Exiting program...")
+                sys.exit()
+            else:
+                print("There was an error receiving data from the server.")
+            
+            decodedData = decodedData[decodedData.index("~") + 1:]
 
     def print_formatted_board(self, board):
         formatted_board = board.replace("/", "\n")
@@ -288,8 +307,8 @@ if (not host or not port):
     sys.exit(1)
 
 #hardcode:
-board = "11111...../2222....../3333....../444......./55......../........../........../........../........../.........."
-
+#board = "11111...../2222....../3333....../444......./55......../........../........../........../........../.........."
+board =  "1........./........../........../........../........../........../........../........../........../.........."
 # cli input:
 # board = input("\nPlease enter your ship positions:\n")
 

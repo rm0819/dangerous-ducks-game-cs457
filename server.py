@@ -18,6 +18,18 @@ class ServerData:
     ship_sunk_flags = [[False, False, False, False, False],[False, False, False, False, False]]
     first = 0
     second = 1
+    first_wants_to_play_again = False
+    second_wants_to_play_again = False
+    reset_game = False
+
+    def reset_game_data(self):
+        self.players = []
+        self.ship_sunk_flags = [[False, False, False, False, False],[False, False, False, False, False]]
+        self.first = 0
+        self.second = 1
+        self.first_wants_to_play_again = False
+        self.second_wants_to_play_again = False
+        self.reset_game = False
 
 class ClientConnection:
     def __init__(self, sel, sock, addr):
@@ -203,15 +215,12 @@ class ClientConnection:
             return False
         
     def end_game(self, current_player, target):
-        self.request = ("0" + str(current_player) + "You Win!").encode("utf-8")
+        # Telling player who sent the final attack
+        self.request = ("4" + str(current_player) + "You Win!").encode("utf-8")
         self.send_buffer.append(self.request)
         #Telling target
-        self.request = ("0" + str(target) + "You Lose!").encode("utf-8")
+        self.request = ("4" + str(target) + "You Lose!").encode("utf-8")
         self.send_buffer.append(self.request)
-        p.players[0][2].close()
-        p.players[1][2].close()
-        logger.info("Game End, close application.")
-
 
     def message_decode(self, data):
         readable = data.decode("utf-8")
@@ -219,6 +228,8 @@ class ClientConnection:
             self.join_game(readable[1:])
         elif readable[0] == "1":
             self.pass_turn(readable[1:])
+        elif readable[0] == "2":
+            self.play_again(readable[1:])
         else:
             pass
             # error!
@@ -235,13 +246,29 @@ class ClientConnection:
                 print("received ", repr(data), "from", self.sock.getpeername())
                 self.message_decode(data)
             else:
-                raise RuntimeError("Peer closed.")
+                # Client disconnected
+                if p.players[0][2] == self.sock:
+                    playerNumber = 1
+                    disconnected = 0
+                else:
+                    playerNumber = 0
+                    disconnected = 1
+                self.request = ("5" + str(playerNumber + 1) + "Player " + str(disconnected + 1) + " disconnected from the game. Stopping the server.").encode("utf-8")
+                self.send_buffer.append(self.request)
+                # Log and print disconnect error
+                logger.info("Player " + str(disconnected + 1) + " disconnected from the game. Stopping the server.")
+                print("Player " + str(disconnected + 1) + " disconnected from the game. Stopping the server.")
             
         self.set_selector_events_mask("w") # We read the data, we're writing now
 
     # Sends data to specified client
     def write(self):
+        stopServer = False
         for req in self.send_buffer: # if there is something to send
+            # Add character that shows its the end of the message to each request
+            decodedReq = req.decode("utf-8")
+            decodedReq = decodedReq + "~"
+            req = decodedReq.encode("utf-8")
             # Get the player that the request is being sent to
             player = p.players[int(req.decode("utf-8")[1])]
             print("sending  ", repr(req), "to", player[2].getpeername())
@@ -253,12 +280,25 @@ class ClientConnection:
                 pass
             else:
                 pass
+
+            # See if the server sent a server reset message
+            if decodedReq[0] == "4":
+                p.reset_game = True
+
+            # See if the server sent a server close message
+            if decodedReq[0] == "5":
+                stopServer = True
         
         # Clear after all requests have been sent
         self.send_buffer.clear()
 
         if len(self.send_buffer) == 0:
             self.set_selector_events_mask("r") # We sent all our data, listen for a response now
+        
+        # If the server sent a server close message to any player, then stop the server
+        if stopServer:
+            logger.info("Game End, close application.")
+            sys.exit()
 
     def get_request_data(self): # This is for later, in case we need it
         if self.request == None:
@@ -308,6 +348,8 @@ sel.register(lsock, selectors.EVENT_READ, data=None)
 
 try:
     while True:
+        if p.reset_game:
+            p.reset_game_data()
         events = sel.select(timeout=None)
         for key, mask in events:
             if key.data is None:
