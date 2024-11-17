@@ -105,7 +105,7 @@ class ClientConnection:
         else:
             current_player = 1
             target = 0
-        vertical = int(data[1]) - 1
+        vertical = int(data[1:]) - 1
         horizontal = self.letters_to_numbers[data[0].upper()]
         index = (vertical * 11) + horizontal
         index_value = p.players[target][0][index].lower()
@@ -141,7 +141,7 @@ class ClientConnection:
     def check_game_state(self, current_player, target):
         # Needs to check boards to see if any ships are completely sunk, or if all ships have been sunk
         # "Carrier", "Battleship", "Cruiser", "Submarine", "Destroyer"
-        if '1' not in p.players[target][1]:
+        if '1' not in p.players[target][0]:
             if not p.ship_sunk_flags[target][0]:
                 #Carrier Sunk
                 #Telling attacker
@@ -152,7 +152,7 @@ class ClientConnection:
                 self.send_buffer.append(self.request)
 
                 p.ship_sunk_flags[target][0] = True
-        if '2' not in p.players[target][1]:
+        if '2' not in p.players[target][0]:
             if not p.ship_sunk_flags[target][1]:
                 #Battleship Sunk
                 #Telling attacker
@@ -163,7 +163,7 @@ class ClientConnection:
                 self.send_buffer.append(self.request)
 
                 p.ship_sunk_flags[target][1] = True
-        if '3' not in p.players[target][1]:
+        if '3' not in p.players[target][0]:
             if not p.ship_sunk_flags[target][2]:
                 #Cruiser Sunk
                 #Telling attacker
@@ -174,7 +174,7 @@ class ClientConnection:
                 self.send_buffer.append(self.request)
 
                 p.ship_sunk_flags[target][2] = True
-        if '4' not in p.players[target][1]:
+        if '4' not in p.players[target][0]:
             if not p.ship_sunk_flags[target][3]:
                 #Submarine Sunk
                 #Telling attacker
@@ -185,7 +185,7 @@ class ClientConnection:
                 self.send_buffer.append(self.request)
 
                 p.ship_sunk_flags[target][3] = True
-        if '5' not in p.players[target][1]:
+        if '5' not in p.players[target][0]:
             if not p.ship_sunk_flags[target][4]:
                 #Destroyer Sunk
                 #Telling attacker

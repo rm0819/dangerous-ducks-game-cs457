@@ -142,10 +142,10 @@ class Client:
     
     def get_request_data(self):
         if self.request == None:
-            playerInput = input("What move would you like to input? ")
-            while len(playerInput) != 2:
-                print("=== Error: Input must be in the form of <#><letter>. Ex. 2D ===")
-                playerInput = input("What move would you like to input? ")
+            playerInput = input("What tile would you like to attack? ")
+            while len(playerInput) != 2 and len(playerInput) != 3:
+                print("=== Error: Input must be in the form of <letter><#>. Ex. D2 ===")
+                playerInput = input("What tile would you like to attack? ")
             self.request = ("1" + str(playerInput)).encode("utf-8")
             self.send_buffer.append(self.request)
         else:
@@ -209,11 +209,8 @@ def print_formatted_board(board):
 def placement_validator(board, coordinate, direction, size, boat_number):
     board = list(board)
     vertical = int(coordinate[1:]) - 1
-    print(vertical)
     horizontal = ord(coordinate[0]) - 65
-    print(horizontal)
     index = (vertical * 11) + horizontal
-    print(direction)
     if direction == "up": 
         step_by = -11
     elif direction == "down":
