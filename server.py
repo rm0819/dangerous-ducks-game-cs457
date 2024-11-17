@@ -106,7 +106,7 @@ class ClientConnection:
             current_player = 1
             target = 0
         vertical = int(data[0]) - 1
-        horizontal = self.letters_to_numbers[data[1]]
+        horizontal = self.letters_to_numbers[data[1]].upper()
         index = (vertical * 11) + horizontal
         index_value = p.players[target][0][index].lower()
         if index_value != "." and index_value != "o":
@@ -202,8 +202,16 @@ class ClientConnection:
         else: 
             return False
         
-    def end_game():
-        pass
+    def end_game(self,):
+        self.request = ("0" + str(current_player) + "You Win!").encode("utf-8")
+        self.send_buffer.append(self.request)
+        #Telling target
+        self.request = ("0" + str(target) + "You Lose!").encode("utf-8")
+        self.send_buffer.append(self.request)
+
+        self.p.players[0][2].close()
+        self.p.players[1][2].close()
+        logger.info("Game End, close application.")
 
 
     def message_decode(self, data):
