@@ -349,6 +349,9 @@ sel.register(lsock, selectors.EVENT_READ, data=None)
 try:
     while True:
         if p.reset_game:
+            print("Resetting server.")
+            sel.unregister(p.players[0][2])
+            sel.unregister(p.players[1][2])
             p.reset_game_data()
         events = sel.select(timeout=None)
         for key, mask in events:
