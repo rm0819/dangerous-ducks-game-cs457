@@ -45,7 +45,6 @@ The goal of this project is to create a network battleship game that can be play
 
 ## Scope:
 ### Inclusions:
-[List the specific tasks, features, or components that will be included in the project.]
 
 Implement client-server architecture capable of at least two simultaneous clients.
 
@@ -61,19 +60,19 @@ Implement client-server architecture capable of at least two simultaneous client
 - -p port
 
 ### Exclusions:
-[List any tasks, features, or components that will not be included in the project.]
+
 - Web UI
 - Other?
   
 ## Deliverables:
-[List the expected outputs or deliverables from the project, such as a working Python script, documentation, or presentations.]
+
 - Working Python script
 - Detailed documentation on how to setup server and client
 - A short video demo?
 
 ## Timeline:
 ### Key Milestones:
-[Outline the major milestones or checkpoints throughout the project, with estimated completion dates.]
+
 - [x] Sprint 0: Form teams, Setup Tools, Submit SOW [Template] (Sept 08-Sept 22)
 - [x] Sprint 1: Socket Programming, TCP Client Server (Sept 22-Oct 06) 
 - [x] Sprint 2: Develop Game Message Protocol, Manage Client connections (Oct 06-Oct 20)
@@ -82,7 +81,7 @@ Implement client-server architecture capable of at least two simultaneous client
 - [ ] Sprint 5: Implement Error Handling and Testing (Nov 17-Dec 6)
   
 ### Task Breakdown:
-[Create a detailed breakdown of tasks, assigning estimated hours or days to each.]
+
 - Program base battleship game and design CLI output. EST: 4 hours
 - Program server socket connection handling. EST: 2 hours
 - Program client connecitons to server. EST: 2.5 hours
@@ -94,7 +93,7 @@ Implement client-server architecture capable of at least two simultaneous client
 
 ## Technical Requirements:
 ### Hardware:
-[Specify any hardware requirements, such as servers, networking equipment, or specific devices.]
+
 
 **Required**
 - A computer with a connection to itself.
@@ -103,17 +102,17 @@ Implement client-server architecture capable of at least two simultaneous client
 - Two computers able to communicate with each other.
 
 ### Software:
-[List the necessary software tools, programming languages (Python), libraries (socket, threading, etc.), and operating systems.]
+
 - Python
 - Python libraries, including: socket, threading
   
 ## Assumptions:
-[State any assumptions that are being made about the project, such as network connectivity or availability of resources.]
+
 - Any clients are able to connect to the server, through the local network or the internet.
 - Any client machines are able to run python.
   
 ## Roles and Responsibilities:
-[Define the roles of team members, including project manager, developers, testers, etc., and their responsibilities.]
+
 
 **Developers**
 - Matt Smith
@@ -130,12 +129,12 @@ Implement client-server architecture capable of at least two simultaneous client
 - Matt Smith
 
 ## Communication Plan:
-[Outline the communication channels and frequency for project updates, meetings, and decision-making.]
+
 - We will communicate weekly over Discord.
 
 Team members will check in twice a week to discuss weekly goals and state of affairs. One of these check-ins will be a virtual call meeting, used for in-depth discussion and planning.
 ## Additional Notes:
-[Include any other relevant information or considerations that are specific to your project.]
+
 - Nothing to report here yet!
 
 <br/>
