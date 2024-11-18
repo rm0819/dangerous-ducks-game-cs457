@@ -74,7 +74,7 @@ class Client:
                 # Read the data, its time to write
                 self.set_selector_events_mask("w")
             elif decodedData[0] == "2": # Message containing ship board
-                print("Your ships:")
+                print("Your ships and enemy attacks:")
                 self.print_formatted_board(info)
             elif decodedData[0] == "3": # Message containing attack board
                 print("Your attacks:")
@@ -83,8 +83,7 @@ class Client:
                 print(info)
                 inp = input("Would you like to play again? y/n: ")
                 if inp.lower() == "y":
-                    global sel 
-                    sel = selectors.DefaultSelector()
+                    sel.unregister(self.sock)
                     req = b"0" + board.encode("utf-8") 
                     start_game_connection(host, port, req)
                     print("Connecting to the server to play again!")
@@ -136,7 +135,7 @@ class Client:
                 # process data
                 self.message_decode(data)
             else:
-                raise RuntimeError("Peer closed.")
+                raise RuntimeError("Peer closed.") # Change to handle server closing and client disconnecting
             
     # Sends whatever data is in the request variable to the server
     def write(self):
@@ -270,13 +269,13 @@ def initialize_board():
     for i in range(5):
         retry_prompt = True
         while(retry_prompt):
-            coordinate, direction = input(f"Input a starting coordinate and length for your {ship_types[i]} (Length {ship_lengths[i]}).\n").split()
+            coordinate, direction = input(f"Input a starting coordinate and direction for your {ship_types[i]} (Length {ship_lengths[i]}).\n").split()
             validate_value = placement_validator(board, coordinate.upper().strip(), direction.lower().strip(), ship_lengths[i], i+1)
             if validate_value is not None:
                 board = validate_value
                 retry_prompt = False
                 print("Your board now looks like this:")
-                print_formatted_board("".join(board))
+                print_formatted_board(board)
     return board
 
 def start_game_connection(host, port, request):
@@ -306,14 +305,14 @@ if (not host or not port):
     print("Enter host and port as such: <host> <port>")
     sys.exit(1)
 
-#hardcode:
+# Hardcode:
 #board = "11111...../2222....../3333....../444......./55......../........../........../........../........../.........."
-board =  "1........./........../........../........../........../........../........../........../........../.........."
+#board =  "1........./........../........../........../........../........../........../........../........../.........."
 # cli input:
 # board = input("\nPlease enter your ship positions:\n")
 
-#real:
-# board = initialize_board()
+# Real:
+board = initialize_board()
 
 #action, value = sys.argv[3], sys.argv[4]
 request = b"0" + board.encode("utf-8") 

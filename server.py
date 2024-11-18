@@ -147,7 +147,7 @@ class ClientConnection:
             self.end_game(current_player, target)
 
         # Request attack move from the other player
-        self.request = ("1" + str(target) + "Please enter which tile you would like to attack (Ex. 1A):").encode("utf-8")
+        self.request = ("1" + str(target) + "Please enter which tile you would like to attack (Ex. A1):").encode("utf-8")
         self.send_buffer.append(self.request)
 
     def check_game_state(self, current_player, target):
@@ -246,7 +246,7 @@ class ClientConnection:
                 print("received ", repr(data), "from", self.sock.getpeername())
                 self.message_decode(data)
             else:
-                # Client disconnected
+                # Client disconnected # IMPORTANT -- Update so if one person is connected, they can disconnect without breaking things
                 if p.players[0][2] == self.sock:
                     playerNumber = 1
                     disconnected = 0
@@ -297,7 +297,8 @@ class ClientConnection:
         
         # If the server sent a server close message to any player, then stop the server
         if stopServer:
-            logger.info("Game End, close application.")
+            print("Client disconnected, closing application.")
+            logger.info("Client disconnected, close application.")
             sys.exit()
 
     def get_request_data(self): # This is for later, in case we need it
@@ -349,7 +350,9 @@ sel.register(lsock, selectors.EVENT_READ, data=None)
 try:
     while True:
         if p.reset_game:
-            print("Resetting server.")
+            logger.info("Game ended, reset server.")
+            print("Game ended, resetting server.")
+            print("listening on", (host, port))
             sel.unregister(p.players[0][2])
             sel.unregister(p.players[1][2])
             p.reset_game_data()
