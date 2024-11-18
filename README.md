@@ -16,7 +16,8 @@ This is a simple network battleship game implemented using Python and sockets.
 3. **Play the game:**
     1. After both clients are set up and connected, the server will ask a random player for a tile to attack.
     2. Once the player sends an attack, the server will compute it, and send an updated board back to both players, and then ask the other player for their attack.
-    3. This continues on, but the game cannot be won or ended yet.
+    3. The game will check for when one/all ships are sunk, and inform both players. If all ships of a player are sunk, the game will end.
+    4. Players will be asked if they want to play again after the game ends.
 
 **Technologies used:**
 * Python
@@ -77,7 +78,7 @@ Implement client-server architecture capable of at least two simultaneous client
 - [x] Sprint 1: Socket Programming, TCP Client Server (Sept 22-Oct 06) 
 - [x] Sprint 2: Develop Game Message Protocol, Manage Client connections (Oct 06-Oct 20)
 - [x] Sprint 3: Multi-player functionality, Synchronize state across clients. (Oct 20-Nov 03)
-- [ ] Sprint 4: Game play, Game State (Nov 03-Nov 17)
+- [x] Sprint 4: Game play, Game State (Nov 03-Nov 17)
 - [ ] Sprint 5: Implement Error Handling and Testing (Nov 17-Dec 6)
   
 ### Task Breakdown:
