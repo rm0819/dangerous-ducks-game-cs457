@@ -226,8 +226,20 @@ def print_formatted_board(board):
 
 def placement_validator(board, coordinate, direction, size, boat_number):
     board = list(board)
+    print(coordinate)
+    if len(coordinate) < 2:
+        print("Your coordinate was invalid. Pick a valid coordinate on the board, in <letter><number> format. Try again.")
+        return None
     vertical = int(coordinate[1:]) - 1
     horizontal = ord(coordinate[0]) - 65
+    if vertical < 0 or vertical > 9:
+        print("Your number was invalid. Pick a valid number on the board, from 1 to 10. Try again.")
+        if horizontal < 0 or horizontal > 9:
+            print("Your letter was invalid. Pick a valid number on the board, from A to J. Try again.")
+        return None
+    if horizontal < 0 or horizontal > 9:
+            print("Your letter was invalid. Pick a valid number on the board, from A to J. Try again.")
+            return None
     index = (vertical * 11) + horizontal
     if direction == "up": 
         step_by = -11
@@ -269,8 +281,14 @@ def initialize_board():
     for i in range(5):
         retry_prompt = True
         while(retry_prompt):
-            coordinate, direction = input(f"Input a starting coordinate and direction for your {ship_types[i]} (Length {ship_lengths[i]}).\n").split()
-            validate_value = placement_validator(board, coordinate.upper().strip(), direction.lower().strip(), ship_lengths[i], i+1)
+            user_input = input(f"Input a starting coordinate and direction for your {ship_types[i]} (Length {ship_lengths[i]}).\n")
+            if user_input.count(" ") == 1:
+                coordinate, direction = user_input.split()
+                validate_value = placement_validator(board, coordinate.upper().strip(), direction.lower().strip(), ship_lengths[i], i+1)
+            else:
+                print("Your input is invalid. For each ship, pick a starting coordinate and direction (up, down, left, right)")
+                print("ie: C2 down")
+                validate_value = None
             if validate_value is not None:
                 board = validate_value
                 retry_prompt = False
