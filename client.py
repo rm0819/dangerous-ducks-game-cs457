@@ -158,14 +158,40 @@ class Client:
         if len(self.send_buffer) == 0:
             self.set_selector_events_mask("r") # We sent all our data, listen for a response now
     
+    def input_sanitizing(self, input):
+        if len(input) != 2 and len(input) != 3:
+            print("Your coordinate was invalid. Pick a valid coordinate on the board, in <letter><number> format. Try again.")
+            return None
+        if len(input) == 2:
+            if ord(input[1]) < 49 or ord(input[1]) > 57:
+                print("Your number was invalid. Pick a valid number on the board, from 1 to 10. Try again.")
+                return None
+        if len(input) == 3:
+            if ord(input[1]) != 49 or ord(input[2]) != 48:
+                print("Your number was invalid. Pick a valid number on the board, from 1 to 10. Try again.")
+                return None
+        vertical = int(input[1:]) - 1
+        horizontal = ord(input[0]) - 65
+        if vertical < 0 or vertical > 9:
+            print("Your number was invalid. Pick a valid number on the board, from 1 to 10. Try again.")
+            if horizontal < 0 or horizontal > 9:
+                print("Your letter was invalid. Pick a valid number on the board, from A to J. Try again.")
+            return None
+        if horizontal < 0 or horizontal > 9:
+            print("Your letter was invalid. Pick a valid number on the board, from A to J. Try again.")
+            return None
+        return input
+
     def get_request_data(self):
         if self.request == None:
-            playerInput = input("What tile would you like to attack? ")
-            while len(playerInput) != 2 and len(playerInput) != 3:
-                print("=== Error: Input must be in the form of <letter><#>. Ex. D2 ===")
+            retry_prompt = True
+            while(retry_prompt):
                 playerInput = input("What tile would you like to attack? ")
-            self.request = ("1" + str(playerInput)).encode("utf-8")
-            self.send_buffer.append(self.request)
+                safe_input = self.input_sanitizing(playerInput)
+                if safe_input is not None:
+                    retry_prompt = False
+                    self.request = ("1" + str(playerInput)).encode("utf-8")
+                    self.send_buffer.append(self.request)
         else:
             self.send_buffer.append(self.request)
 
@@ -226,10 +252,17 @@ def print_formatted_board(board):
 
 def placement_validator(board, coordinate, direction, size, boat_number):
     board = list(board)
-    print(coordinate)
-    if len(coordinate) < 2:
+    if len(coordinate) != 2 and len(coordinate) != 3:
         print("Your coordinate was invalid. Pick a valid coordinate on the board, in <letter><number> format. Try again.")
         return None
+    if len(coordinate) == 2:
+        if ord(coordinate[1]) < 49 or ord(coordinate[1]) > 57:
+            print("Your number was invalid. Pick a valid number on the board, from 1 to 10. Try again.")
+            return None
+    if len(coordinate) == 3:
+        if ord(coordinate[1]) != 49 or ord(coordinate[2]) != 48:
+            print("Your number was invalid. Pick a valid number on the board, from 1 to 10. Try again.")
+            return None
     vertical = int(coordinate[1:]) - 1
     horizontal = ord(coordinate[0]) - 65
     if vertical < 0 or vertical > 9:
