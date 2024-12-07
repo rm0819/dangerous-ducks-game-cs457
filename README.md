@@ -221,3 +221,6 @@ This is an attack board update sent to the first player, with the updated board 
 
 ## Message Format
 All messages will be byte encoded
+
+## Security Issues
+This game cannot be altered on the client side to gain an advantage, as all game logic and information is stored on the server. No error checking or authentication is performed server side, so any attack involving unexpected or altered packets would likely disrupt game function, or potentially create disadvantageous inputs for a player. The server is somewhat fragile in that it expects a reliable order of operations, so it is much more likely to crash than be maliciously manipulated. If we continued this project, rewriting the server so it can discard incorrect messages would be a priority, with message autherntication a potential bonus.
