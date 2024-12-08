@@ -3,6 +3,7 @@
 - [Scope of Work](#sow)
 - [Technical Details](#technical-details)
 - [Game Message Protocol](#game-message-protocol)
+- [Known Issues](#known-issues)
 
 <br/>
 
@@ -10,7 +11,7 @@
 
 This is a simple network battleship game implemented using Python and sockets. 
 
-**How to play:**
+## How to play:
 1. **Start the server:** python server.py -p \<port\>
 2. **Connect client to server:** python client.py -i \<ip\> -p \<port\>, then follow instructions.
 3. **Play the game:**
@@ -19,11 +20,26 @@ This is a simple network battleship game implemented using Python and sockets.
     3. The game will check for when one/all ships are sunk, and inform both players. If all ships of a player are sunk, the game will end.
     4. Players will be asked if they want to play again after the game ends.
 
-**Technologies used:**
+## Roadmap
+If we had more time, we would do a lot of things with this project. Some notable ones are:
+1. Polish any known issues, and playtest to find and fix any other bugs
+2. Add a nice looking web or local GUI for the players
+3. Make the server more robust, so it is less likely to crash due to malicious/unexpected player behavior
+
+## Retrospective
+Overall, this project went very well. We had a great time making it and learned a ton about networking, logging, synchronization, Python, and other concepts.
+#### What went right
+We spent plenty of time working on it, and got all of the features we wanted to see implemented.
+We have most edge cases and inputs sanitized/fixed.
+#### What could be improved
+The known bugs could be fixed, and as stated above, the server could be designed to handle unexpected behavior better. We could also improve a few aesthetic/design elements.
+
+
+## Technologies used:
 * Python
 * Sockets
 
-**Additional resources:**
+## Additional resources:
 * [Battleship Rules](https://www.hasbro.com/common/instruct/battleship.pdf)
 * [Link to Python documentation](https://docs.python.org/3/)
 * [Link to sockets tutorial](https://docs.python.org/3/howto/sockets.html)
@@ -221,6 +237,12 @@ This is an attack board update sent to the first player, with the updated board 
 
 ## Message Format
 All messages will be byte encoded
+
+# Known Issues
+
+## Bugs
+1. If a client is taking their turn, and the other client disconnects while doing so, the current client won't know until they finish taking their turn.
+2. Clients cannot handle a disconnection from the other client
 
 ## Security Issues
 This game cannot be altered on the client side to gain an advantage, as all game logic and information is stored on the server. No error checking or authentication is performed server side, so any attack involving unexpected or altered packets would likely disrupt game function, or potentially create disadvantageous inputs for a player. The server is somewhat fragile in that it expects a reliable order of operations, so it is much more likely to crash than be maliciously manipulated. If we continued this project, rewriting the server so it can discard incorrect messages would be a priority, with message autherntication a potential bonus.
