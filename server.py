@@ -56,12 +56,17 @@ class ClientConnection:
 
     def close(self):
         print("closing connection to", self.addr)
+        logger.info("Closed connection to %s", self.addr)
         try:
             self.selector.unregister(self.sock)
         except Exception as e:
             print(
                 f"error: selector.unregister() exception for",
                 f"{self.addr}: {repr(e)}",
+            )
+            logger.error(
+                "error: selector.unregister() exception for %s: %s",
+                self.addr, repr(e)
             )
 
         try:
@@ -70,6 +75,10 @@ class ClientConnection:
             print(
                 f"error: socket.close() exception for",
                 f"{self.addr}: {repr(e)}",
+            )
+            logger.error(
+                "error: socket.close() exception for %s: %s",
+                self.addr, repr(e)
             )
         finally:
             # Delete reference to socket object for garbage collection
@@ -244,6 +253,7 @@ class ClientConnection:
             if data:
                 # process data
                 print("received ", repr(data), "from", self.sock.getpeername())
+                logger.info("received %s from %s", repr(data), self.sock.getpeername())
                 self.message_decode(data)
             else:
                 # Client disconnected # IMPORTANT -- Update so if one person is connected, they can disconnect without breaking things
@@ -272,6 +282,7 @@ class ClientConnection:
             # Get the player that the request is being sent to
             player = p.players[int(req.decode("utf-8")[1])]
             print("sending  ", repr(req), "to", player[2].getpeername())
+            logger.info("Sent %s to %s", repr(req), player[2].getpeername())
             try:
                 # Send the data to the specified player
                 player[2].send(req)
@@ -319,7 +330,7 @@ sel = selectors.DefaultSelector()
 
 # Configure logging
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename="server.log", encoding='utf-8', level=logging.DEBUG, format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logging.basicConfig(filename="server.log", level=logging.DEBUG, format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 # Data structure to hold player values
 p = ServerData()
@@ -344,6 +355,7 @@ lsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 lsock.bind((host, port))
 lsock.listen()
 print("listening on", (host, port))
+logger.info("Listening for connections from %s on port %s", host, port)
 lsock.setblocking(False)
 sel.register(lsock, selectors.EVENT_READ, data=None)
 
@@ -369,11 +381,12 @@ try:
                         "main: error: exception for",
                         f"{clientConnection}:\n{traceback.format_exc()}",
                     )
-                    logger.info(
-                        "main: error: exception for",
-                        f"{clientConnection}:\n{traceback.format_exc()}"
+                    logger.error(
+                        "main: error: exception for %s:%s",
+                        clientConnection, traceback.format_exc()
                     )
 except KeyboardInterrupt:
     print("caught keyboard interrupt, exiting")
+    logger.info("Keyboard interrupt, closing program")
 finally:
     sel.close()

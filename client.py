@@ -44,12 +44,17 @@ class Client:
 
     def close(self):
         print("closing connection to", self.serverAddr)
+        logger.info("Closed connection to %s", self.serverAddr)
         try:
             self.selector.unregister(self.sock)
         except Exception as e:
             print(
                 f"error: selector.unregister() exception for",
                 f"{self.serverAddr}: {repr(e)}",
+            )
+            logger.error(
+                f"error: selector.unregister() exception for %s: %s",
+                self.serverAddr, repr(e)
             )
 
         try:
@@ -59,6 +64,10 @@ class Client:
                 f"error: socket.close() exception for",
                 f"{self.serverAddr}: {repr(e)}",
             )
+            logger.error(
+                "error: socket.close() exception for %s: %s",
+                self.serverAddr, repr(e)
+            )
         finally:
             # Delete reference to socket object for garbage collection
             self.sock = None
@@ -67,6 +76,7 @@ class Client:
         decodedData = data.decode("utf-8")
         for i in range(decodedData.count("~")):
             info = decodedData[2:decodedData.index("~")]
+            logger.info("Received %s from %s", info, self.serverAddr)
             if decodedData[0] == "0": # Info message from the server
                 print(info)
             elif decodedData[0] == "1": # Request for information from the server
@@ -90,13 +100,16 @@ class Client:
                     logger.info("Connecting to the server to play again.")
                 else:
                     print("Exiting program...")
+                    logger.info("Exiting program.")
                     sys.exit()
             elif decodedData[0] == "5": # Message saying the server stopped, and the reason why
                 print(info)
                 print("Exiting program...")
+                logger.info("Exiting program.")
                 sys.exit()
             else:
                 print("There was an error receiving data from the server.")
+                logger.info("Unexpected error getting info from the server from: %s", self.serverAddr)
             
             decodedData = decodedData[decodedData.index("~") + 1:]
 
@@ -142,6 +155,7 @@ class Client:
         for req in self.send_buffer: # if there is something to send
             # Get the player that the request is being sent to
             print("sending", repr(req), "to", self.serverAddr)
+            logger.info("sending %s to %s", repr(req), self.serverAddr)
             try:
                 # Send the data to the specified player
                 self.sock.send(req)
@@ -209,7 +223,7 @@ sel = selectors.DefaultSelector()
 
 # Set up logging for client
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename="client.log", encoding='utf-8', level=logging.DEBUG, format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logging.basicConfig(filename="client.log", level=logging.DEBUG, format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 # non-class usage for initialize. can probably use for class as well but I dont want to break anything rn
 def print_formatted_board(board):
@@ -344,6 +358,7 @@ def start_game_connection(host, port, request):
     
 # -------------------- START TO GAME ------------------------
 print("\nWelcome to Battleship!")
+logger.info("Starting program.")
 
 parser = argparse.ArgumentParser(description='Server for Battleship terminal game')
 parser.add_argument('-i', help='Server IP', required=True)
@@ -364,12 +379,14 @@ if (not host or not port):
 
 # Real:
 board = initialize_board()
+logger.info("Initialized player board information.")
 
 #action, value = sys.argv[3], sys.argv[4]
 request = b"0" + board.encode("utf-8") 
 start_game_connection(host, port, request)
 
 print("Connected to the server!")
+logger.info("Connected to the server at %s on port %s", host, port)
 
 try:
     while True:
@@ -384,9 +401,9 @@ try:
                     "main: error: exception for",
                     f"{client}:\n{traceback.format_exc()}",
                 )
-                logger.info(
-                    "main: error: exception for",
-                    f"{client}:\n{traceback.format_exc()}"
+                logger.error(
+                    "main: error: exception for %s: %s",
+                    client, traceback.format_exc()
                 )
                 client.close()
         # If there are still sockets open then continue the program
@@ -394,5 +411,6 @@ try:
             break
 except KeyboardInterrupt:
     print("caught keyboard interrupt, exiting")
+    logger.info("Caught keyboard interrupt, exiting program")
 finally:
     sel.close()
