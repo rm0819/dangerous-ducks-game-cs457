@@ -94,7 +94,7 @@ Implement client-server architecture capable of at least two simultaneous client
 - [x] Sprint 2: Develop Game Message Protocol, Manage Client connections (Oct 06-Oct 20)
 - [x] Sprint 3: Multi-player functionality, Synchronize state across clients. (Oct 20-Nov 03)
 - [x] Sprint 4: Game play, Game State (Nov 03-Nov 17)
-- [ ] Sprint 5: Implement Error Handling and Testing (Nov 17-Dec 6)
+- [x] Sprint 5: Implement Error Handling and Testing (Nov 17-Dec 6)
   
 ### Task Breakdown:
 
